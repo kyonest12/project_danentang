@@ -20,7 +20,6 @@ import { Ionicons, Entypo, MaterialIcons, AntDesign } from '@expo/vector-icons';
 import { Avatar, Button, Card, Title, Paragraph } from 'react-native-paper';
 import { getTimeUpdatePostFromUnixTime } from '../Services/Helper/common';
 import postService from '../Services/Api/postService';
-import userService from '../Services/Api/userService';
 import CenterModal from './modal/CenterModal';
 import DetailPostModal from './modal/DetailPostModal';
 import PostModalOneImage from './modal/PostModalOneImage';
@@ -33,6 +32,7 @@ import DotModal from './modal/DotModal';
 import ReportModal from './modal/ReportModal';
 import { Audio } from 'expo-av';
 import { resetEmojiSlice, setUserID } from '../Redux/emojiSlice';
+import moment from 'moment';
 function PostInHome({ navigation, postData, userID, avatar }) {
     const dispatch = useDispatch();
     const [showComment, setShowComment] = useState(false);
@@ -52,10 +52,8 @@ function PostInHome({ navigation, postData, userID, avatar }) {
     );
     const postUpdated = () => {
         postService.getPost(post.id).then(async (result) => {
-            userService.getUserInfor(result.data.author.id).then(async (aut) => {
-                result.data.author = aut.data
-                
-            })
+            setPost(result.data);
+            await postService.updateListPostsCache([result.data]);
         }).catch((e) => {
             console.log(e);
         })
@@ -71,7 +69,7 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                 }
             }}>
                 <Avatar.Image size={45} source={
-                    avatar ? avatar : post?.author?.avatar === null ? require('../../assets/images/default_avatar.jpg') : { uri: avatar ? avatar : post?.author?.avatar }
+                    avatar ? avatar : post?.author?.avatar === "" ? require('../../assets/images/default_avatar.jpg') : { uri: avatar ? avatar : post?.author?.avatar }
                 } />
             </TouchableOpacity>
         );
@@ -108,6 +106,7 @@ function PostInHome({ navigation, postData, userID, avatar }) {
     }
     useEffect(() => {
         setPost(postData);
+        console.log("_______________________________", post.created)
     }, [postData])
     return (
         <View style={{ flex: 1, marginTop: 10 }}>
@@ -144,8 +143,8 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                                 }
                             }}>
                                 <Text style={{ width: 200 }}>
-                                    <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{post?.author?.username + ' '}</Text>
-                                    {post?.state && <Image source={{ uri: uriEmoji() }} style={styles.emoji} />}
+                                    <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{post?.author?.name + ' '}</Text>
+                                    
                                     {post?.state && <Text style={{ fontWeight: 'normal', fontSize: 15 }}>
                                         {` đang cảm thấy ${post?.state}`}
                                     </Text>}
@@ -158,7 +157,7 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                     subtitle={
                         <Text>
                             <View style={{ flexDirection: 'row' }}>
-                                <Text style={{ fontSize: 12, color: '#606060' }}>{getTimeUpdatePostFromUnixTime(post?.modified)}</Text>
+                                <Text style={{ fontSize: 12, color: '#606060' }}>{moment(post?.created).format('YYYY-MM-DD HH:mm')}</Text>
                                 <Text style={{ fontSize: 10, marginHorizontal: 2, top: 1, color: '#606060' }}>{" • "}</Text>
                                 <Image style={{ width: 12, height: 12, top: 2, opacity: 0.6 }} source={require('../../assets/icons/public-icon-facebook.png')} />
                             </View>

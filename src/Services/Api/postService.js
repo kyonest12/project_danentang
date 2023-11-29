@@ -4,10 +4,24 @@ import { deepCopy, _getCache, _setCache } from "../Helper/common";
 
 const createPost = async (data) => {
   const { described, status, formData, isMedia, videoWidth, videoHeight } = data;
-  if (isMedia) return axios.post(`/add_post?&described=${described}&status=${status}&image=${videoWidth}&video=${videoHeight}`,
-    formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-  return axios.post(`/add_post?&described=${described}&status=${status}`);
+  console.log("___________________________________________________", videoHeight, videoWidth)
+  const requestBody = new FormData();
+  requestBody.append('described', described);
+  requestBody.append('status', status);
+
+  if (isMedia) {
+    requestBody.append('image', videoWidth);
+    requestBody.append('video', videoHeight);
+    requestBody.append('media', formData);
+  }
+
+  return await axios.post('/add_post', requestBody, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 };
+
 const getListPosts = async (lastId, index, count) => {
   return await axios.post(
     '/get_list_posts',
@@ -18,14 +32,14 @@ const getListPosts = async (lastId, index, count) => {
     }
   );
 };
-const editPost = (data) => {
+const editPost = async (data) => {
   const { id, described, status, formData, isMedia, videoWidth, videoHeight, image_del, video_del } = data;
   if (video_del) {
     if (isMedia) {
       return axios.post(`/edit_post?&id=${id}&described=${described}&status=${status}&videoWidth=${videoWidth}&videoHeight=${videoHeight}&image_del=${image_del}&video_del=${"true"}`,
         formData, { headers: { 'Content-Type': 'multipart/form-data' } });
     }
-    return axios.post(`/edit_post?&id=${id}&described=${described}&status=${status}&video_del=${"true"}`);
+    return await axios.post(`/edit_post?&id=${id}&described=${described}&status=${status}&video_del=${"true"}`);
   }
   if (isMedia) {
     return axios.post(`/edit_post?&id=${id}&described=${described}&status=${status}&videoWidth=${videoWidth}&videoHeight=${videoHeight}&image_del=${image_del}`,
@@ -34,9 +48,9 @@ const editPost = (data) => {
   return axios.post(`/edit_post?&id=${id}&described=${described}&status=${status}&image_del=${image_del}`);
 
 }
-const deletePost = (data) => {
+const deletePost = async (data) => {
   const {id} = data;
-  return axios.post(`/delete_post?&id=${id}`);
+  return await axios.post(`/delete_post?&id=${id}`);
 }
 const getListVideos = (lastId, index, count) => {
   return axios.post(`/get_list_videos?last_id=${lastId}&index=${index}&count=${count}`);
@@ -45,7 +59,12 @@ const likePost = (postId) => {
   return axios.post(`like?id=${postId}`);
 }
 const getPost = (postId) => {
-  return axios.post(`get_post?id=${postId}`);
+  return axios.post(
+    '/get_post',
+    {
+      id:postId
+    }
+  );
 }
 const reportPost = (data) => {
   const { id, subject, details } = data;

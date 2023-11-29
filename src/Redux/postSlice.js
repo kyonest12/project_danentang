@@ -75,8 +75,8 @@ const postSlice = createSlice({
     [fetchListPost.fulfilled]: (state, action) => {
       console.log("fetchListPost actiion ful", action);
       state.isPostListLoading = false;
-      state.postList = action?.payload?.data?.posts;
-      postService.updateListPostsCache(action?.payload?.data?.posts);
+      state.postList = action?.payload?.data?.post;
+      postService.updateListPostsCache(action?.payload?.data?.post);
     },
     [fetchListPost.rejected]: (state, action) => {
       console.log("fetchListPost action rej", action);

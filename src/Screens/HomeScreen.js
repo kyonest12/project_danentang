@@ -46,7 +46,7 @@ function HomeScreen({ route, onSwipeUp, onSwipeDown, navigation }) {
                 setPostListTotal(await postService.getListPostsCache());
             }
         }
-        await delay(2000);
+        await delay(1000);
         setRefreshing(false);
     };
     const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
@@ -78,7 +78,8 @@ function HomeScreen({ route, onSwipeUp, onSwipeDown, navigation }) {
             console.log(newCreatePostData);
             newPostList = newPostList.concat(postListTotal);
             setPostListTotal(newPostList);
-            if (currentTabIndex === 0) ToastAndroid.show("Đăng bài viết thành công", ToastAndroid.SHORT);
+            ToastAndroid.show("Đăng bài viết thành công", ToastAndroid.SHORT);
+            onRefresh();
             dispatch(resetAddUpdateDeletePost());
         }
         if (isErrorCreatePost) {
@@ -134,56 +135,12 @@ function HomeScreen({ route, onSwipeUp, onSwipeDown, navigation }) {
     }, [postList]);
     console.log('newPostList', postListTotal.length);
     return <View style={styles.container}>
-        {/* <ScrollView showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-            refreshControl={
-                <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                    colors={["#0f80f7"]}
-                />}
-            onScrollBeginDrag={() => endScroll.current = false}
-            onScrollEndDrag={() => endScroll.current = true}
-            onScroll={({ nativeEvent }) => {
-                handleOffsetToSwipe(nativeEvent.contentOffset.y)
-                if (isCloseToBottom(nativeEvent)) {
-                    // đã đến cuối trang -> gọi api lấy bài tiếp theo
-                    // khi không load nữa
-                    if (!isPostListLoading)
-                        dispatch(fetchListPost({ lastId: postListTotal[postListTotal.length - 1]?.id, index: defaultIndex + 1, count: defaultCount }));
-                }
-            }}
-            scrollEventThrottle={400} // kich hoat onScroll trong khung hinh co do dai 400
-        >
-            <View style={{ flex: 1, height: 70, backgroundColor: 'white', flexDirection: 'row', padding: 15 }}>
-                <Image style={{ width: 45, height: 45, borderRadius: 45 / 2, borderWidth: 0.5, borderColor: '#ccc' }} source={
-                    user?.avatar === null ? require('../../assets/images/default_avatar.jpg') : { uri: user?.avatar }
-                } />
-                <TouchableOpacity style={{ flex: 1 }} onPress={() => goToCreatePost()}>
-                    <TextInput selectTextOnFocus={false}
-                        editable={false}
-                        style={{
-                            flex: 1, borderWidth: 1, placeholderTextColor: 'black',
-                            borderColor: '#ccc', height: 40, fontSize: 15, marginTop: 3,
-                            marginLeft: 10, borderRadius: 30, paddingLeft: 18
-                        }}
-                        placeholderTextColor="black"
-                        placeholder="Bạn đang nghĩ gì ?"
-                    />
-                </TouchableOpacity>
-            </View>
-            {postListTotal?.map((item, index) => {
-                console.log(index);
-                //if (index === 0) console.log(item.image);
-                return <PostInHome navigation={navigation} key={item.id} postData={item} userID={user.id} />
-            })}
-        </ScrollView> */}
         <FlatList
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
             data={postListTotal}
-            renderItem={(data) => {
-                if (data.index === 0) {
+            renderItem={(item) => {
+                if (item.index === 0) {
                     return <>
                         <View style={{ flex: 1, height: 70, backgroundColor: 'white', flexDirection: 'row', padding: 15 }}>
                             <TouchableOpacity onPress={()=> {
@@ -206,10 +163,10 @@ function HomeScreen({ route, onSwipeUp, onSwipeDown, navigation }) {
                                 />
                             </TouchableOpacity>
                         </View>
-                        <PostInHome navigation={navigation} postData={data.data} userID={user.id} />
+                        <PostInHome navigation={navigation} key={item.index} postData={item.item} userID={user.id} />
                     </>
                 }
-                return <PostInHome navigation={navigation} postData={data.data} userID={user.id} />
+                return <PostInHome navigation={navigation} key={item.index} postData={item.item} userID={user.id} />
             }}
             // Performance settings
             removeClippedSubviews={true} // Unmount components when outside of window 
