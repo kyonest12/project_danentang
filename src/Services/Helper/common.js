@@ -28,9 +28,12 @@ export const deepCopy = (data) => {
     return JSON.parse(JSON.stringify(data));
 }
 
-export const onlyNumber = (str) => {
-    return /^\d+$/.test(str);
-}
+export function isValidEmail(email) {
+    // Sử dụng regex để kiểm tra tính hợp lệ của địa chỉ email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+  
 export const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 export const getTimeUpdatePostFromUnixTime = (unix) => {

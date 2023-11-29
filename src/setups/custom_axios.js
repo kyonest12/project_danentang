@@ -18,14 +18,13 @@ const instance = axios.create({
 // Add a request interceptor
 instance.interceptors.request.use(
   async function (config) {
-    //Do something before request is sent
+    // Do something before request is sent
     const token = await _getCache("token");
-    if (config.url.includes('?')){
-      config.url += `&token=${token}`
-    }
-    else {
-      config.url += `?token=${token}`;
-    }
+    console.log(token);
+
+    // Set Authorization header with Bearer token
+    config.headers.Authorization = `Bearer ${token}`;
+
     return config;
   },
   function (error) {

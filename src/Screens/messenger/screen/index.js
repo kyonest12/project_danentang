@@ -1,7 +1,7 @@
 import React, { Component, useEffect, useState } from 'react'
 import { View, FlatList, Text, TextInput, ScrollView } from 'react-native'
 import { useDispatch, useSelector } from "react-redux";
-import dataFake from '../data';
+//import dataFake from '../data';
 import Item from '../elements/chat_item';
 import styles from '../style/style_item';
 import FriendItem from '../elements/friend_item';

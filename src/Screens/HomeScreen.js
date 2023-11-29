@@ -206,10 +206,10 @@ function HomeScreen({ route, onSwipeUp, onSwipeDown, navigation }) {
                                 />
                             </TouchableOpacity>
                         </View>
-                        <PostInHome navigation={navigation} key={data.item.id} postData={data.item} userID={user.id} />
+                        <PostInHome navigation={navigation} postData={data.data} userID={user.id} />
                     </>
                 }
-                return <PostInHome navigation={navigation} key={data.item.id} postData={data.item} userID={user.id} />
+                return <PostInHome navigation={navigation} postData={data.data} userID={user.id} />
             }}
             // Performance settings
             removeClippedSubviews={true} // Unmount components when outside of window 

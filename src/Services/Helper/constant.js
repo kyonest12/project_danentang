@@ -1,4 +1,4 @@
-export const REST_API_URL = 'https://7f33-2405-4802-1d94-6070-74e6-6a3e-bfaf-1eb2.ngrok-free.app';
+export const REST_API_URL = 'https://abe9-42-114-37-243.ngrok-free.app';
 export const CHAT_SERVER_URL = 'https://7640-27-67-41-193.ap.ngrok.io';
 //export const REST_API_URL = API_URL;
 const INTERNET_CONNECTION_FAILED = 'Bạn đang offline';

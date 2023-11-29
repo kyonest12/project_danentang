@@ -20,6 +20,7 @@ import { Ionicons, Entypo, MaterialIcons, AntDesign } from '@expo/vector-icons';
 import { Avatar, Button, Card, Title, Paragraph } from 'react-native-paper';
 import { getTimeUpdatePostFromUnixTime } from '../Services/Helper/common';
 import postService from '../Services/Api/postService';
+import userService from '../Services/Api/userService';
 import CenterModal from './modal/CenterModal';
 import DetailPostModal from './modal/DetailPostModal';
 import PostModalOneImage from './modal/PostModalOneImage';
@@ -51,8 +52,10 @@ function PostInHome({ navigation, postData, userID, avatar }) {
     );
     const postUpdated = () => {
         postService.getPost(post.id).then(async (result) => {
-            setPost(result.data);
-            await postService.updateListPostsCache([result.data]);
+            userService.getUserInfor(result.data.author.id).then(async (aut) => {
+                result.data.author = aut.data
+                
+            })
         }).catch((e) => {
             console.log(e);
         })
@@ -60,7 +63,7 @@ function PostInHome({ navigation, postData, userID, avatar }) {
     const LeftContent = () => {
         return (
             <TouchableOpacity onPress={() => {
-                //console.log("userId", post?.author?.id);
+                console.log("userId", post?.author?.id);
                 if(post?.author?.id == user?.id) {
                     navigation.navigate("profile");
                 }else{

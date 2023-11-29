@@ -5,8 +5,8 @@ import { delay } from '../Services/Helper/common'
 
 export const login = createAsyncThunk("auth/login", async (data, thunkAPI) => {
   try {
-    const { phonenumber, password } = data;
-    return await authService.login(phonenumber, password);
+    const { email, password } = data;
+    return await authService.login(email, password);
   } catch (e) {
     console.log("error", e);
     return thunkAPI.rejectWithValue("something went wrong");

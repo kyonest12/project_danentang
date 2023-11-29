@@ -1,7 +1,7 @@
 import { Text, View, StyleSheet, Image, TouchableOpacity, Alert } from "react-native";
 import { TextInput, Button } from "@react-native-material/core";
 import { useState, useEffect } from "react";
-import { deepCopy, onlyNumber, _getCache } from "../Services/Helper/common";
+import { _getCache, isValidEmail } from "../Services/Helper/common";
 import { useDispatch, useSelector } from "react-redux";
 import { login, changeFirstLogin, removeLoginInfoInRedux, changeLoginWithCache } from "../Redux/authSlice";
 import NetInfo from '@react-native-community/netinfo';
@@ -12,12 +12,12 @@ import RemoveLoginInfoModal from "../Components/modal/RemoveLoginInfoModal";
 import { COMMON_COLOR } from "../Services/Helper/constant";
 export default function LoginScreen({ navigation }) {
     const dispatch = useDispatch();
-    const { loginPhonenumber, loginPassword, loginType } = useSelector(
+    const { loginEmail, loginPassword, loginType } = useSelector(
         (state) => state.auth
     );
     const [checkValidate, setCheckValidate] = useState(0);
     const validate = useRef({
-        phonenumber: {
+        email: {
             exactly: true,
             errorName: '',
         },
@@ -34,23 +34,24 @@ export default function LoginScreen({ navigation }) {
     const [loginWithCache, setLoginWithCache] = useState(true);
     const [showRemoveLoginModal, setShowRemoveLoginModal] = useState(false);
     const [loginInfo, setLoginInfo] = useState();
-    const [phonenumber, setPhonenumber] = useState();
+    const [email, setEmail] = useState();
     const [password, setPassword] = useState();
     const [verifyCode, setVerifyCode] = useState();
     const [verifyCodeServer, setVerifyCodeServer] = useState();
     const [awaitCode, setAwaitCode] = useState();
     const loginInfoSelected = useRef();
     // function
-    const handleSetPhonenumber = (e) => {
-        if (e === undefined || !onlyNumber(e)) {
-            validate.current.phonenumber.exactly = false;
-            validate.current.phonenumber.errorName = 'Số điện thoại không hợp lệ'
+    const handleSetEmail = (e) => {
+        if (e === undefined || isValidEmail(e)) {
+            validate.current.email.exactly = false;
+            validate.current.email.errorName = 'Email không hợp lệ'
         }
         else {
-            validate.current.phonenumber.exactly = true;
-            validate.current.phonenumber.errorName = ''
+            validate.current.email.exactly = true;
+            validate.current.email.errorName = ''
         }
-        setPhonenumber(e);
+        console.log(e)
+        setEmail(e);
         setCheckValidate(checkValidate + 1);
     }
     const handleSetPassword = (e) => {
@@ -78,10 +79,10 @@ export default function LoginScreen({ navigation }) {
         setCheckValidate(checkValidate + 1);
     }
     const handleVerifyCode = () => {
-        authService.checkVerifyCode(loginPhonenumber, verifyCode).then(() => {
+        authService.checkVerifyCode(loginEmail, verifyCode).then(() => {
             validate.current.verifyCode.exactly = true;
             validate.current.verifyCode.errorName = '';
-            dispatch(login({ phonenumber: loginPhonenumber, password: loginPassword }));
+            dispatch(login({ email: loginEmail, password: loginPassword }));
         }).catch(e => {
             console.log(e);
             validate.current.verifyCode.exactly = false;
@@ -90,14 +91,14 @@ export default function LoginScreen({ navigation }) {
     }
 
     const handleLogin = () => {
-        handleSetPhonenumber(phonenumber);
-        if (validate.current.phonenumber.exactly) handleSetPassword(password);
-        if (!validate.current.phonenumber.exactly && !validate.current.password.exactly) return;
-        dispatch(login({ phonenumber: phonenumber, password: password }));
+        handleSetEmail(email);
+        if (validate.current.email.exactly) handleSetPassword(password);
+        if (!validate.current.email.exactly && !validate.current.password.exactly) return;
+        dispatch(login({ email: email, password: password }));
         dispatch(changeLoginWithCache(false));
     }
     const handleGetVerifyCode = () => {
-        authService.getVerifyCode(loginPhonenumber).then((result) => {
+        authService.getVerifyCode(loginEmail).then((result) => {
             setVerifyCodeServer(result?.data?.verifyCode);
         }).catch((e) => {
             console.log('await code', +e.response.data.details);
@@ -219,7 +220,7 @@ export default function LoginScreen({ navigation }) {
                         <TextInput value={verifyCode} label="Mã code"
                             onChangeText={(e) => handleSetVerifyCode(e)}
                             style={{ width: '100%', marginTop: 30, paddingHorizontal: 10 }} variant="outlined" 
-                            color={validate.current.phonenumber.exactly ? COMMON_COLOR.BLUE_COLOR : 'red'} />
+                            color={validate.current.email.exactly ? COMMON_COLOR.BLUE_COLOR : 'red'} />
                         {!validate.current.verifyCode.exactly &&
                             <Text style={{ color: 'red', marginHorizontal: 10, textAlign: 'center' }}>
                                 {validate.current.verifyCode.errorName}
@@ -251,14 +252,14 @@ export default function LoginScreen({ navigation }) {
                     style={styles.logoFacebook}
                     source={require('../../assets/images/logo_facebook.png')}
                 />
-                <TextInput value={phonenumber} label="Số điện thoại"
-                    onChangeText={(e) => handleSetPhonenumber(e)}
+                <TextInput value={email} label="Email"
+                    onChangeText={(e) => handleSetEmail(e)}
                     style={{ width: '100%', padding: 2, marginTop: 30 }} variant="standard" 
-                    color={validate.current.phonenumber.exactly ? COMMON_COLOR.BLUE_COLOR : 'red'} />
+                    color={validate.current.email.exactly ? COMMON_COLOR.BLUE_COLOR : 'red'} />
                 {
-                    !validate.current.phonenumber.exactly
+                    !validate.current.email.exactly
                         ?
-                        <Text style={{ color: 'red', width: '100%', fontSize: 12 }}>{validate.current.phonenumber.errorName}</Text>
+                        <Text style={{ color: 'red', width: '100%', fontSize: 12 }}>{validate.current.email.errorName}</Text>
                         : <></>
                 }
                 <TextInput value={password} label="Mật khẩu" secureTextEntry={true}

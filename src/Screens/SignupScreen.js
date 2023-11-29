@@ -4,7 +4,7 @@ import {
 } from "react-native";
 import { Button, TextInput } from "@react-native-material/core";
 import { useCallback, useLayoutEffect, useState } from "react";
-import { deepCopy, onlyNumber } from "../Services/Helper/common";
+import { deepCopy, isValidEmail } from "../Services/Helper/common";
 import { REST_API_URL } from "../Services/Helper/constant";
 import NetInfo from '@react-native-community/netinfo';
 import MyDatePicker from "../Components/MyDatePicker";
@@ -22,13 +22,13 @@ import { COMMON_COLOR } from "../Services/Helper/constant";
 export default function SignupScreen({ navigation }) {
     const dispatch = useDispatch();
     // state
-    const step = ['Tạo tài khoản', 'Tên', 'Ngày sinh', 'Số di động',
+    const step = ['Tạo tài khoản', 'Tên', 'Ngày sinh', 'Email',
         'Mật khẩu', 'Điều khoản & quyền riêng tư', 'Xác nhận tài khoản', 'Tạo tài khoản thành công'];
     const [stepIndex, setStepIndex] = useState(0);
     const [firstName, setFirstName] = useState();
     const [lastName, setLastName] = useState();
     const [dataBirthDay, setDataBirthDay] = useState(new Date());
-    const [phoneNumber, setPhoneNumber] = useState();
+    const [email, setEmail] = useState();
     const [password, setPassword] = useState();
     const [confirmPassword, setConfirmPassword] = useState();
     const [checkValidate, setCheckValidate] = useState(0);
@@ -44,7 +44,7 @@ export default function SignupScreen({ navigation }) {
             exactly: true,
             errorName: '',
         },
-        phoneNumber: {
+        email: {
             exactly: true,
             errorName: '',
         },
@@ -118,23 +118,23 @@ export default function SignupScreen({ navigation }) {
         validate.current = dataTmp;
         setCheckValidate(checkValidate + 1);
     }
-    const handleSetPhoneNumber = (e) => {
+    const handleSetEmail = (e) => {
         let dataTmp = deepCopy(validate.current);
-        var vnf_regex = /((09|03|07|08|05)+([0-9]{8})\b)/g;
-        if (e === undefined || !onlyNumber(e) || !vnf_regex.test(e)) {
-            dataTmp['phoneNumber'] = {
+        if (e === "" || !isValidEmail(e)) {
+            console.log(e)
+            dataTmp['email'] = {
                 exactly: false,
-                errorName: 'Số điện thoại không hợp lệ'
+                errorName: 'email không hợp lệ'
             }
         }
         else {
-            dataTmp['phoneNumber'] = {
+            dataTmp['emai'] = {
                 exactly: true,
                 errorName: ''
             }
         }
         validate.current = dataTmp;
-        setPhoneNumber(e);
+        setEmail(e);
         setCheckValidate(checkValidate + 1);
     }
     const handleSetPassword = (e) => {
@@ -194,6 +194,7 @@ export default function SignupScreen({ navigation }) {
         }
         validate.current = dataTmp;
         setDataBirthDay(date);
+        console.log(date)
         setCheckValidate(checkValidate + 1);
     }
     const handleNextStep = async () => {
@@ -207,14 +208,14 @@ export default function SignupScreen({ navigation }) {
         }
         if (stepIndex === 2) handleSetBirthDay(dataBirthDay);
         if (stepIndex === 3) {
-            handleSetPhoneNumber(phoneNumber);
+            handleSetEmail(email);
         }
         if (stepIndex === 4) {
             handleSetPassword(password);
             if (validate.current.password.exactly) handleSetConfirmPassword(confirmPassword);
         }
         if (!validate.current.firstName.exactly || !validate.current.lastName.exactly
-            || !validate.current.birthday.exactly || !validate.current.phoneNumber.exactly
+            || !validate.current.birthday.exactly || !validate.current.email.exactly
             || !validate.current.password.exactly || !validate.current.confirmPassword.exactly) return;
         // console.log(index);
         setStepIndex(stepIndex + 1);
@@ -234,7 +235,7 @@ export default function SignupScreen({ navigation }) {
     }
     const handleVerifyCode = () => {
 
-        authService.checkVerifyCode(phoneNumber, verifyCode).then(() => {
+        authService.checkVerifyCode(email, verifyCode).then(() => {
             validate.current.verifyCode.exactly = true;
             validate.current.verifyCode.errorName = '';
             handleNextStep();
@@ -247,24 +248,26 @@ export default function SignupScreen({ navigation }) {
     }
     const handleSignUp = () => {
         let date = dataBirthDay.getFullYear() + '-' + (dataBirthDay.getMonth() + 1) + '-' + dataBirthDay.getDate();
-        authService.signup(phoneNumber, password, firstName.trim() + ' ' + lastName.trim(), date).then((result) => {
-            console.log(result);
-            setVerifyCodeServer(result.data.verifyCode);
+        authService.signup(email, password, firstName.trim() + ' ' + lastName.trim(), date).then((result) => {
+            console.log("result: ", result);
+            setVerifyCodeServer(result["data"]["verify_code"]);
             handleNextStep();
         }).catch(e => {
             console.log(e);
         });
     }
-    const handleCheckPhoneNumber = () => {
-        authService.checkExistPhoneNumber(phoneNumber).then((result) => {
-            if (result.data.isExisted === "true") {
-                validate.current.phoneNumber.exactly = false;
-                validate.current.phoneNumber.errorName = 'Số điện thoại đã tồn tại';
+    const handleCheckEmail = () => {
+        console.log(email)
+        authService.checkExistEmail(email).then((result) => {
+            console.log(result.code)
+            if (result.code != 1000) {
+                validate.current.email.exactly = false;
+                validate.current.email.errorName = 'Email đã tồn tại';
                 setCheckValidate(checkValidate + 1);
             }
             else {
-                validate.current.phoneNumber.exactly = true;
-                validate.current.phoneNumber.errorName = '';
+                validate.current.email.exactly = true;
+                validate.current.email.errorName = '';
                 handleNextStep();
             }
         }).catch((e) => {
@@ -387,22 +390,22 @@ export default function SignupScreen({ navigation }) {
                             <View style={styles.viewIndex}>
                                 <View style={{ flexDirection: 'column', width: '100%' }}>
                                     <Text style={{ fontWeight: 'bold', fontSize: 20, textAlign: 'center' }}>
-                                        Nhập số điện thoại của bạn
+                                        Nhập email 
                                     </Text>
-                                    <TextInput value={phoneNumber} label="Số điện thoại"
-                                        onChangeText={(e) => handleSetPhoneNumber(e)}
+                                    <TextInput value={email} label="Email"
+                                        onChangeText={(e) => handleSetEmail(e)}
                                         style={{ width: '100%', marginTop: 30 }} variant="outlined"
-                                        color={validate.current.phoneNumber.exactly ? COMMON_COLOR.BLUE_COLOR : 'red'} />
-                                    {!validate.current.phoneNumber.exactly &&
+                                        color={validate.current.email.exactly ? COMMON_COLOR.BLUE_COLOR : 'red'} />
+                                    {!validate.current.email.exactly &&
                                         <Text style={{ color: 'red', marginTop: 10 }}>
-                                            {validate.current.phoneNumber.errorName}
+                                            {validate.current.email.errorName}
                                         </Text>}
                                 </View>
                                 <Button title="Tiếp"
                                     uppercase={false}
                                     color={COMMON_COLOR.BLUE_COLOR}
                                     style={{ marginTop: 50, width: '100%' }}
-                                    onPress={() => handleCheckPhoneNumber()}
+                                    onPress={() => handleCheckEmail()}
                                 />
                             </View>
                             : stepIndex === 4 ?
@@ -445,9 +448,6 @@ export default function SignupScreen({ navigation }) {
                                                 onPress={() => handleSignUp()}
                                             />
                                         </View>
-                                        <WebView
-                                            source={{ uri: `${REST_API_URL}/finishedsignup` }} />
-
                                     </View>
                                     : stepIndex === 6 ?
                                         <View style={styles.viewIndex}>
@@ -499,7 +499,7 @@ export default function SignupScreen({ navigation }) {
                                                     color={COMMON_COLOR.BLUE_COLOR}
                                                     style={{ marginTop: 50, width: '70%' }}
                                                     onPress={() => {
-                                                        dispatch(login({ phonenumber: phoneNumber, password: password }));
+                                                        dispatch(login({ email: email, password: password }));
                                                         dispatch(changeLoginWithCache(false))
                                                     }
                                                     }

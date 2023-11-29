@@ -1,31 +1,65 @@
+import data from "../../Screens/img/emoji";
 import axios from "../../setups/custom_axios";
 import { _getCache, _setCache } from "../Helper/common";
 import postService from "./postService";
-const login = async (phonenumber, password) => {
-  console.log(password, phonenumber);
-  return axios.post(`/auth/login?phonenumber=${phonenumber}&password=${password}`);
+const login = async (email, password) => {
+  console.log(password, email);
+  return axios.post(
+    '/login',
+    {
+      email: email,
+      password: password,
+      uuid: 'string'
+    }
+  );
 };
-const signup = async (phonenumber, password, name, birthday,) => {
-  console.log(password, phonenumber);
-  return axios.post(`/auth/signup?phonenumber=${phonenumber}&password=${password}&name=${name}&birthday=${birthday}`);
+const signup = async (email, password, name, birthday,) => {
+  console.log(password, email, name, birthday);
+  return axios.post(
+    '/signup',
+    {
+      email: email,
+      password: password,
+      name: name,
+      birthday: Date(birthday),
+    }
+  );
 };
 const changePassword = async (password, newPassword) => {
-  return axios.post(`/auth/change_password?password=${password}&new_password=${newPassword}`);
+  return axios.post(`/change_password?password=${password}&new_password=${newPassword}`);
 }
-const checkExistPhoneNumber = async (phonenumber) => {
-  console.log(phonenumber);
-  return axios.post(`/auth/checkexistphonenumber?phonenumber=${phonenumber}`);
+
+const checkExistEmail = async (email) => {
+  console.log(email);
+  return axios.post(
+    '/checkexistemail',
+    {
+      email: email,
+    }
+  );
 }
-const checkVerifyCode = async (phonenumber, code) => {
-  console.log(phonenumber, code);
-  return axios.post(`/auth/check_verify_code?phonenumber=${phonenumber}&code_verify=${code}`);
+
+const checkVerifyCode = async (email, code) => {
+  console.log(email, code);
+  return axios.post(
+    '/check_verify_code',
+    {
+      email: email,
+      code_verify: code
+    }
+  );
 }
-const getVerifyCode = async (phonenumber) => {
-  console.log(phonenumber);
-  return axios.post(`/auth/get_verify_code?phonenumber=${phonenumber}`);
+const getVerifyCode = async (email) => {
+  console.log(email);
+  return axios.post(
+    '/get_verify_code',
+    {
+      email: email,
+    }
+  );
 }
 const verifyToken = async () => {
-  return axios.get(`/auth/verifyToken`);
+  return axios.get(`/verifyToken`);
 }
 const logout = async () => {
   // remove token
@@ -34,7 +68,7 @@ const logout = async () => {
     await _setCache("user", "");
     // clear cache
     await postService.removePostsCache();
-    return axios.post(`/auth/logout`);
+    return axios.post(`/logout`);
   }
   catch (e) {
     console.log(e);
@@ -89,7 +123,7 @@ const getListLoginInfo = async () => {
 const removeLoginInfo = async (user) => {
   try {
     let loginInfo = await getListLoginInfo();
-    let index = loginInfo.map(o => o.phonenumber).indexOf(user.phonenumber);
+    let index = loginInfo.map(o => o.email).indexOf(user.email);
     if (index !== -1){
       loginInfo.splice(index, 1);
     }
@@ -102,7 +136,7 @@ const removeLoginInfo = async (user) => {
 }
 const authService = {
   login, logout, verifyToken, setToken,
-  getToken, signup, checkExistPhoneNumber, checkVerifyCode,
+  getToken, signup, checkExistEmail, checkVerifyCode,
   getVerifyCode, saveLoginInfo, getListLoginInfo,
   removeLoginInfo, changePassword
 };
