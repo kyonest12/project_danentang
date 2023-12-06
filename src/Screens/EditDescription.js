@@ -4,13 +4,16 @@ import styles from './style/editDescription';
 import React, { useEffect, useState, memo } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { Ionicons } from 'react-native-vector-icons';
-import {setUserInfo} from '../Redux/userSlice';
+import userSlice, {setUserInfo} from '../Redux/userSlice';
+import userService from '../Services/Api/userService';
+import { updateDescription } from '../Redux/userSlice';
 
 function EditDescription({navigation}) {
     const dispatch = useDispatch();
     const [isActive, setActive] = useState(false);
-    const [description, setDescription] = useState('');
-    const [desLen, setDesLen] = useState(0);
+    const {userInfor, isLoading} = useSelector((state) => state.user);
+    const [description, setDescription] = useState(userInfor.description);
+    const [desLen, setDesLen] = useState(description.length);
     const {user} = useSelector(
         (state) => state.auth
     );
@@ -32,8 +35,11 @@ function EditDescription({navigation}) {
         }
     },[description]);
 
+
     const setUserDescription = () => {
-        dispatch(setUserInfo({des: description, userId: user.id}));
+        // dispatch(setUserInfo({des: description, userId: user.id}));
+        dispatch(updateDescription(description));
+        console.log('ok: ', description);
     }
     return <View style={styles.container}>
         <View style={styles.firstView}>
@@ -53,16 +59,15 @@ function EditDescription({navigation}) {
         <View style={isActive? styles.editViewFocus: styles.editView}>
             <TextInput
                 numberOfLines={9}
-                label= {'\tBạn có thêm tiểu sử ngắn để cho mọi người biết thêm\n  về bản thân mình. Hãy thêm bất cứ thứ gì bạn muốn \n\n\n'}
+                value={description}
                 variant="standard"
                 multiline={true}
                 textAlignVertical = 'top'
                 color='#1a53ff'
-                style ={{paddingTop: 20}}
+                style ={{padding: 10, borderRadius: 8, paddingTop: 20}}
                 onFocus={()=>setActive(true)}
                 helperText = {desLen + '/101' }
                 onChangeText={(text) => {setDesLen(text.length), setDescription(text)}}
-                maxLength = {101}
             />
         </View>
     </View>

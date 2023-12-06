@@ -9,12 +9,22 @@ import { MaterialCommunityIcons } from 'react-native-vector-icons';
 import {FontAwesome5} from 'react-native-vector-icons';
 import {getUserInfo} from '../Redux/userInforSlice';
 import styles from './style/edit';
+import { WebView } from 'react-native-webview';
+import userService from '../Services/Api/userService';
 
 function EditProfileScreen ({navigation}) {
     const editTitle = 'Chỉnh sửa';
     const dispatch = useDispatch();
     const {userInfor, isLoading} = useSelector((state) => state.user);
     console.log('dataEdit: ', userInfor);
+    //open web view
+    function openWebView(url) {
+        console.log('open web view');
+        return (
+            <WebView source={{ uri: url }} style={{ flex: 1 }} />
+        );
+    }
+
     return <ScrollView style={styles.container}>
         <View style={styles.editAvatar}>
             <View style={styles.titleAvatars}>
@@ -66,7 +76,7 @@ function EditProfileScreen ({navigation}) {
                     onPress={()=> navigation.navigate('editDescription')}
                 >
                     <Text style={styles.titleButton}>
-                        Thêm
+                        Chỉnh sửa
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -94,7 +104,7 @@ function EditProfileScreen ({navigation}) {
                 </TouchableOpacity>
             </View>
             <View>
-                <View style={styles.rowInfor}>
+                {/* <View style={styles.rowInfor}>
                     <MaterialCommunityIcons name='school' size={27} color='#909698'/>
                     <Text style={styles.hardTextAddress}>
                         Học tại
@@ -102,8 +112,8 @@ function EditProfileScreen ({navigation}) {
                     <Text style={styles.hardTextAddress} numberOfLines={2}>
                         Đại học Bách Khoa Hà Nội
                     </Text>
-                </View>
-                <View style={styles.rowInfor}>
+                </View> */}
+                {/* <View style={styles.rowInfor}>
                     <MaterialCommunityIcons name='school' size={27} color='#909698'/>
                     <Text style={styles.hardTextAddress}>
                         Từng học tại
@@ -111,8 +121,8 @@ function EditProfileScreen ({navigation}) {
                     <Text style={styles.hardTextAddress}>
                         Đại học Bách Khoa Hà Nội
                     </Text>
-                </View>
-                <View style={styles.rowInfor}>
+                </View> */}
+                {/* <View style={styles.rowInfor}>
                     <MaterialCommunityIcons name='school' size={27} color='#909698'/>
                     <Text style={styles.hardTextAddress}>
                         Đã học tại
@@ -120,10 +130,10 @@ function EditProfileScreen ({navigation}) {
                     <Text style={styles.hardTextAddress}>
                         Tôi yêu bách khoa
                     </Text>
-                </View>
+                </View> */}
                 <View style={styles.rowInfor}>
                     <Icon name='home-sharp' size={25} color='#909698'/>
-                    <Text style={styles.hardTextAddress}>
+                    <Text style={styles.hardTextCountry}>
                         Sống tại
                     </Text>
                     <Text style={styles.hardTextAddress}>
@@ -137,6 +147,12 @@ function EditProfileScreen ({navigation}) {
                     </Text>
                     <Text style={styles.hardTextAddress}>
                         {userInfor.country}
+                    </Text>
+                </View>
+                <View style={styles.rowInfor}>
+                    <FontAwesome5 name='link' size={25} color='#909698'/>
+                    <Text style={styles.hardTextLink} onPress={() => openWebView(userInfor.link)}>
+                        {userInfor.link}
                     </Text>
                 </View>
                 <View style={styles.rowInfor}>
@@ -159,7 +175,7 @@ function EditProfileScreen ({navigation}) {
                 </TouchableOpacity>
             </View>
         </View>
-        <View style={styles.favorite}>
+        {/* <View style={styles.favorite}>
             <View style={styles.titleAvatars}>
                 <Text style={styles.title}>
                     Liên kết
@@ -170,12 +186,24 @@ function EditProfileScreen ({navigation}) {
                     </Text>
                 </TouchableOpacity>
             </View>
-        </View>
+            <View>
+                <View style={styles.rowInfor}>
+                    <FontAwesome5 name='link' size={25} color='#909698'/>
+                    <Text style={styles.hardTextLink}>
+                        {userInfor.link}
+                    </Text>
+                </View>
+            </View>
+        </View> */}
         <View style={styles.editInforButton}>
-            <FontAwesome5 name='user-minus' color='#3488f4'/>
-            <Text style={{color: '#3488f4', marginStart: 5, fontSize: 18}}>
-                Chỉnh sửa thông tin giới thiệu
-            </Text>
+            <TouchableOpacity onPress={() => {
+                
+            }}>
+                <FontAwesome5 name='user-minus' color='#3488f4'/>
+                <Text style={{color: '#3488f4', marginStart: 5, fontSize: 18}}>
+                    Chỉnh sửa thông tin giới thiệu
+                </Text>
+            </TouchableOpacity>
         </View>
     </ScrollView>
 }

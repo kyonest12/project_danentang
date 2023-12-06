@@ -2,6 +2,11 @@ import data from "../../Screens/img/emoji";
 import axios from "../../setups/custom_axios";
 import {ToastAndroid} from 'react-native'
 
+const updateProfile = (data) => {
+  let res = axios.post('/set_user_info', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+  return res;
+}
+
 const getAllUsers = () => {
   return axios.get("/get-all-users");
 };
@@ -88,7 +93,8 @@ const userService = {
   setCoverImage,
   setUserCity,
   setUserCountry,
-  getUserInforWithToken
+  getUserInforWithToken,
+  updateProfile
 };
 
 

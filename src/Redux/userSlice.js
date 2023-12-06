@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, createAction } from "@reduxjs/toolkit";
 import userService from "../Services/Api/userService";
+import { setDescribed } from "./emojiSlice";
 export const fetchAllUsers = createAsyncThunk(
   "user/fetchAllUsers",
   async (_, thunkAPI) => {
@@ -85,6 +86,8 @@ export const setUserCountry  = createAsyncThunk(
     }
   }
 )
+
+// export const setDescription = (data) => {return data;}
 export const resetStatusSetUser = createAction('resetStatusSetUser');
 
 export const resetUserInfor = createAction('resetUserInfor');
@@ -101,7 +104,17 @@ const initialState = {
 const userSlice = createSlice({
   name: "user",
   initialState,
-  reducers: {},
+  reducers: {
+    updateDescription: (state, action) => {
+      state.userInfor.description = action.payload;
+    },
+    updateCity: (state, action) => {
+      state.userInfor.city = action.payload;
+    },
+    updateCountry: (state, action) => {
+      state.userInfor.country = action.payload;
+    },
+  },
   extraReducers: {
     [fetchAllUsers.pending]: (state) => {
       console.log("pending");
@@ -159,8 +172,13 @@ const userSlice = createSlice({
     [resetInforWithData]: (state, action) => {
       state.userInfor = action?.payload?.data;
     },
+    // [setDescription]: (state, action) => {
+    //   state.userInfor.description = action?.payload?.data;
+    // },
     [resetUserSlice]: () => initialState
   },
 });
+
+export const {updateDescription, updateCity, updateCountry} = userSlice.actions;
 
 export default userSlice.reducer;

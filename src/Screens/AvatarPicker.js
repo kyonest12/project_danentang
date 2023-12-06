@@ -36,6 +36,7 @@ export default function AvatarPicker({navigation}) {
             dispatch(resetInforWithData(result))
             showToast('Cập nhật ảnh đại diện thành công!');
         }).catch((e) => {
+            console.log(e);
             Alert.alert("Có lỗi xảy ra", "Vui lòng thử lại sau.", [
                 { text: "OK", onPress: () => null }
             ]);

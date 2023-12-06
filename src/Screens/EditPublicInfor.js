@@ -19,7 +19,7 @@ export default function EditPublicInfor({ navigation }) {
                         Chi tiết bạn sẽ chọn hiển thị công khai
                     </Text>
                 </View>
-                <View style={styles.secondView}>
+                {/* <View style={styles.secondView}>
                     <Text style={styles.title}>
                         Công việc
                     </Text>
@@ -33,7 +33,7 @@ export default function EditPublicInfor({ navigation }) {
                             <MaterialCommunityIcons name="pencil" size={30} color='#000000'/>
                         </View>
                     </View>
-                </View>
+                </View> */}
 
                 <View style={styles.thirdView}>
                     <Text style={styles.title}>
@@ -73,7 +73,7 @@ export default function EditPublicInfor({ navigation }) {
 
                 <View style={styles.secondView}>
                     <Text style={styles.title}>
-                        Tỉnh/Thành phố hiện tại
+                        Tỉnh/Thành phố
                     </Text>
                     <View style={{ flexDirection: 'row', marginTop: 20}}>
                         <View style={{flex: 12}}>
@@ -112,11 +112,13 @@ export default function EditPublicInfor({ navigation }) {
             </ScrollView>
         </View>
         <View style={styles.viewButtonSave}>
-            <View style={styles.saveButton}>
-                <Text style ={{color: 'white', fontSize: 20}}>
-                    Lưu
-                </Text>
-            </View>
+            <TouchableOpacity onPress={() => {navigation.navigate('editProfile')}}>
+                <View style={styles.saveButton}>
+                    <Text style ={{color: 'white', fontSize: 20}}>
+                        Lưu
+                    </Text>
+                </View>
+            </TouchableOpacity>
         </View>
     </View>
 }
