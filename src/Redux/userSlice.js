@@ -114,6 +114,15 @@ const userSlice = createSlice({
     updateCountry: (state, action) => {
       state.userInfor.country = action.payload;
     },
+    updateAddress: (state, action) => {
+      state.userInfor.address = action.payload;
+    },
+    updateAvatar: (state, action) => {
+      state.userInfor.avatar = action.payload;
+    },
+    updateCover: (state, action) => {
+      state.userInfor.cover_image = action.payload;
+    }
   },
   extraReducers: {
     [fetchAllUsers.pending]: (state) => {
@@ -179,6 +188,6 @@ const userSlice = createSlice({
   },
 });
 
-export const {updateDescription, updateCity, updateCountry} = userSlice.actions;
+export const {updateDescription, updateCity, updateCountry, updateAddress, updateAvatar, updateCover} = userSlice.actions;
 
 export default userSlice.reducer;

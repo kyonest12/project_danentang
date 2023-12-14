@@ -11,12 +11,14 @@ import {getUserInfo} from '../Redux/userInforSlice';
 import styles from './style/edit';
 import { WebView } from 'react-native-webview';
 import userService from '../Services/Api/userService';
+import { Alert, ToastAndroid } from 'react-native';
+import {resetInforWithData} from '../Redux/userSlice';
 
 function EditProfileScreen ({navigation}) {
     const editTitle = 'Chỉnh sửa';
     const dispatch = useDispatch();
     const {userInfor, isLoading} = useSelector((state) => state.user);
-    console.log('dataEdit: ', userInfor);
+    console.log(userInfor);
     //open web view
     function openWebView(url) {
         console.log('open web view');
@@ -24,7 +26,14 @@ function EditProfileScreen ({navigation}) {
             <WebView source={{ uri: url }} style={{ flex: 1 }} />
         );
     }
+    const { user } = useSelector(
+        (state) => state.auth
+    );
 
+    const showToast = (message) => {
+        ToastAndroid.show(message, ToastAndroid.SHORT);
+    };
+    // console.log('user: ', user);
     return <ScrollView style={styles.container}>
         <View style={styles.editAvatar}>
             <View style={styles.titleAvatars}>
@@ -137,7 +146,7 @@ function EditProfileScreen ({navigation}) {
                         Sống tại
                     </Text>
                     <Text style={styles.hardTextAddress}>
-                        {userInfor.city}
+                        {userInfor.address ? userInfor.address : '\'chưa cập nhật\''}
                     </Text>
                 </View>
                 <View style={styles.rowInfor}>
@@ -146,13 +155,22 @@ function EditProfileScreen ({navigation}) {
                         Đến từ
                     </Text>
                     <Text style={styles.hardTextAddress}>
-                        {userInfor.country}
+                        {userInfor.country ? userInfor.country : '\'chưa cập nhật\''}
+                    </Text>
+                </View>
+                <View style={styles.rowInfor}>
+                    <FontAwesome5 name='map-marker-alt' size={25} color='#909698'/>
+                    <Text style={styles.hardTextCountry}>
+                        Đến từ
+                    </Text>
+                    <Text style={styles.hardTextAddress}>
+                        {userInfor.city ? userInfor.city : '\'chưa cập nhật\''}
                     </Text>
                 </View>
                 <View style={styles.rowInfor}>
                     <FontAwesome5 name='link' size={25} color='#909698'/>
                     <Text style={styles.hardTextLink} onPress={() => openWebView(userInfor.link)}>
-                        {userInfor.link}
+                        {userInfor.link ? userInfor.link : '\'chưa cập nhật\''}
                     </Text>
                 </View>
                 <View style={styles.rowInfor}>
@@ -197,7 +215,25 @@ function EditProfileScreen ({navigation}) {
         </View> */}
         <View style={styles.editInforButton}>
             <TouchableOpacity onPress={() => {
-                
+                let formData = new FormData();
+                formData.append("username", user.username);
+                formData.append("description", userInfor.description);
+                formData.append("address", userInfor.address);
+                formData.append("country", userInfor.country);
+                formData.append("city", userInfor.city);
+                formData.append("link", userInfor.link);
+                // console.log('userInfor: ', userInfor);
+                // console.log('formData: ',formData);
+                userService.updateProfile(formData).then((res) => {
+                    console.log(res);
+                    // dispatch(resetInforWithData(res))
+                    showToast('Cập nhật thành công!');
+                }).catch((e) => {
+                    console.log(e);
+                    Alert.alert("Có lỗi xảy ra", "Vui lòng thử lại sau.", [
+                        { text: "OK", onPress: () => null }
+                    ]);
+                })
             }}>
                 <FontAwesome5 name='user-minus' color='#3488f4'/>
                 <Text style={{color: '#3488f4', marginStart: 5, fontSize: 18}}>

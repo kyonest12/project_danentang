@@ -351,7 +351,7 @@ function ProfileScreen({ navigation, route }) {
                                     Sống tại
                                 </Text>
                                 <Text style={styles.data}>
-                                    {userId ? userInfors.city : userInfor.city}
+                                    {userId ? userInfors.address : userInfor.address}
                                 </Text>
                             </View>
                             : <View></View>
@@ -364,7 +364,7 @@ function ProfileScreen({ navigation, route }) {
                                     Đến từ
                                 </Text>
                                 <Text style={styles.data}>
-                                    {userInfors?.address}
+                                    {userInfors?.city}
                                 </Text>
                             </View>
                             : <View></View>

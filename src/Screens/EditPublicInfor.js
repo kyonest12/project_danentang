@@ -78,7 +78,7 @@ export default function EditPublicInfor({ navigation }) {
                     <View style={{ flexDirection: 'row', marginTop: 20}}>
                         <View style={{flex: 12}}>
                             <Text style = {styles.text}>
-                                {'Sống tại ' + userInfor.city}
+                                {'Đến từ ' + userInfor.city}
                             </Text>
                         </View>
                         <TouchableOpacity
@@ -92,7 +92,7 @@ export default function EditPublicInfor({ navigation }) {
                 </View>
                 <View style={styles.secondView}>
                     <Text style={styles.title}>
-                        Quê quán
+                        Đất nước
                     </Text>
                     <View style={{ flexDirection: 'row', marginTop: 20}}>
                         <View style={{flex: 12}}>
@@ -101,7 +101,26 @@ export default function EditPublicInfor({ navigation }) {
                             </Text>
                         </View>
                         <TouchableOpacity
-                            onPress={() => navigation.navigate('editCity', {isEditCity: false})}
+                            onPress={() => navigation.navigate('editCountry', {isEditCity: false})}
+                        >
+                            <View style={{flex: 1}}>
+                                <MaterialCommunityIcons name="pencil" size={30} color='#000000'/>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                <View style={styles.secondView}>
+                    <Text style={styles.title}>
+                        Địa chỉ
+                    </Text>
+                    <View style={{ flexDirection: 'row', marginTop: 20}}>
+                        <View style={{flex: 12}}>
+                            <Text style = {styles.text}>
+                                {'Sống tại ' + userInfor.address}
+                            </Text>
+                        </View>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('editAddress', {isEditCity: false})}
                         >
                             <View style={{flex: 1}}>
                                 <MaterialCommunityIcons name="pencil" size={30} color='#000000'/>

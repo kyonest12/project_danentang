@@ -2,7 +2,7 @@ import { ImagePicker, Album, Asset } from "expo-image-multiple-picker";
 import {useDispatch, useSelector} from 'react-redux';
 import {View, TouchableOpacity, Text, ToastAndroid} from 'react-native';
 import userServices from '../Services/Api/userService';
-import {resetInforWithData} from '../Redux/userSlice';
+import {resetInforWithData, updateCover} from '../Redux/userSlice';
 
 export default function CoverImagePicker({navigation}) {
     const dispatch = useDispatch();
@@ -26,8 +26,11 @@ export default function CoverImagePicker({navigation}) {
     const setCover = (assets) => {
         let formData = new FormData();
         formData.append("cover_image", { name: assets[0].filename, uri: assets[0].uri, type: 'image/' + getType(assets[0].filename) });
+        formData.append("username", userInfor.username);
+        formData.append("description", userInfor.description);
         userServices.setCoverImage({formData: formData, userId: user.id}).then((result) => {
-            dispatch(resetInforWithData(result))
+            // console.log('res: ',result);
+            dispatch(updateCover(result.data.cover_image))
             showToast('Cập nhật ảnh bìa thành công!');
         }).catch((e) => {
             Alert.alert("Có lỗi xảy ra", "Vui lòng thử lại sau.", [

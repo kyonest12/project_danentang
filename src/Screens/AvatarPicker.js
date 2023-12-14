@@ -1,7 +1,7 @@
 import { ImagePicker, Album, Asset } from "expo-image-multiple-picker";
 import {useDispatch, useSelector} from 'react-redux';
 import {View, TouchableOpacity, Text, ToastAndroid, Alert} from 'react-native';
-import {resetInforWithData} from '../Redux/userSlice';
+import {resetInforWithData, updateAvatar} from '../Redux/userSlice';
 import { useEffect } from "react";
 import userServices from '../Services/Api/userService';
 
@@ -32,8 +32,11 @@ export default function AvatarPicker({navigation}) {
     const setAva = (assets) => {
         let formData = new FormData();
         formData.append("avatar", { name: assets[0].filename, uri: assets[0].uri, type: 'image/' + getType(assets[0].filename) });
+        formData.append("username", userInfor.username);
+        formData.append("description", userInfor.description);
         userServices.setAvatar({formData: formData, userId: user.id}).then((result) => {
-            dispatch(resetInforWithData(result))
+            // console.log('res: ', result);
+            dispatch(updateAvatar(result.data.avatar));
             showToast('Cập nhật ảnh đại diện thành công!');
         }).catch((e) => {
             console.log(e);
