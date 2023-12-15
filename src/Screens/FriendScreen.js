@@ -8,7 +8,8 @@ import {
     ScrollView,
     RefreshControl,
     Image,
-    Alert
+    Alert,
+    ActivityIndicator
 } from 'react-native';
 import { connect } from 'react-redux';
 import { useDispatch, useSelector } from "react-redux";
@@ -23,7 +24,7 @@ import userService from '../Services/Api/userService';
 import { delay, getTimeSendRequestFriend } from '../Services/Helper/common';
 import RequestFriend from '../Components/RequestFriend';
 function FriendScreen({ navigation }) {
-    const defaultCount = 1;
+    const defaultCount = 0;
     const defaultIndex = useRef(0);
     const dispatch = useDispatch();
     const netInfo = useNetInfo();
@@ -33,7 +34,8 @@ function FriendScreen({ navigation }) {
     const [listRequest, setListRequest] = useState([]);
     const [listRequestTotal, setListRequestTotal] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [lf, setLf] = useState([]);
     const onRefresh = async () => {
         setRefreshing(true);
         if (!isLoading) {
@@ -46,12 +48,16 @@ function FriendScreen({ navigation }) {
         setRefreshing(false);
     };
     const handleGetListRequest = () => {
-        userService.getListFriendRequest(defaultIndex.current, defaultCount).then((result) => {
+        // console.log('screen friend');
+        userService.getListFriendRequest(defaultCount*5, 5).then((result) => {
+            // console.log(result);
+            // console.log('a00');
             defaultIndex.current += defaultCount;
-            setListRequest(result.data.request)
+            setListRequest(result.data.requests)
+            setIsLoading(false);
         }).catch(e => {
             setListRequest([])
-            console.log(e);
+            console.log('lỗi: ', e);
         })
     }
     const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
@@ -61,9 +67,14 @@ function FriendScreen({ navigation }) {
     };
 
     useEffect(() => {
-        if (!isLoading) {
-            handleGetListRequest()
-        }
+        // userService.getListFriendRequest(0, defaultCount).then((result) => {
+        //     setLf(result.data.requests);
+        //     console.log('-----', result);
+        // }).catch(e => {
+        //     setLf([]);
+        //     console.log(e);
+        // })
+        handleGetListRequest();
     }, []);
     useEffect(() => {
         let newList = listRequestTotal;
@@ -118,24 +129,28 @@ function FriendScreen({ navigation }) {
                         </TouchableOpacity>
                     </View>
                     <View style={{ height: 1, backgroundColor: '#8c8d90', marginTop: 20, paddingHorizontal: 20 }} />
-                    <View>
-                        {!refreshing && <View style={{ flexDirection: 'row', marginVertical: 10 }}>
-                            {listRequestTotal.length > 0 ?
-                                <>
-                                    <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Lời mời kết bạn </Text>
-                                    <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'red' }}>{listRequestTotal?.length}</Text>
-                                </>
-                                : <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Không có lời mời kết bạn</Text>
-                            }
-                        </View>}
-                        <View style={{ marginHorizontal: -5 }}>
-                            {listRequestTotal?.map((item, index) => {
-                                return <View key={index} >
-                                    <RequestFriend navigation={navigation} data={item} />
-                                </View>
-                            })}
+                    {isLoading ? (
+                        <ActivityIndicator size="large" color="#0000ff" marginTop="10" />
+                    ) : (
+                        <View>
+                            {!refreshing && <View style={{ flexDirection: 'row', marginVertical: 10 }}>
+                                {listRequestTotal.length > 0 ?
+                                    <>
+                                        <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Lời mời kết bạn </Text>
+                                        <Text style={{ fontWeight: 'bold', fontSize: 20, color: 'red' }}>{listRequestTotal?.length}</Text>
+                                    </>
+                                    : <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Không có lời mời kết bạn</Text>
+                                }
+                            </View>}
+                            <View style={{ marginHorizontal: -5 }}>
+                                {listRequestTotal?.map((item, index) => {
+                                    return <View key={index} >
+                                        <RequestFriend navigation={navigation} data={item} />
+                                    </View>
+                                })}
+                            </View>
                         </View>
-                    </View>
+                    )}
                 </View>
             </ScrollView>
         </View>

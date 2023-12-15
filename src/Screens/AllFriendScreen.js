@@ -52,10 +52,11 @@ function AllFriendScreen({ route, navigation }) {
     const handleGetListRequest = () => {
         userService.getUserFriends(targetUserId, defaultIndex.current, defaultCount).then((result) => {
             defaultIndex.current += defaultCount;
+            console.log('fr: ', result);
             setListFriend(result.data.friends)
         }).catch(e => {
             setListFriend([])
-            console.log(e);
+            console.log('lỗi: ',e);
         })
     }
     const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {

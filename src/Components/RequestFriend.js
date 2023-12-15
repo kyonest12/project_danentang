@@ -89,8 +89,31 @@ export default function RequestFriend({ navigation, data }) {
             ]);
         })
     }
+
+    function formatTimeAgo(iso8601Time) {
+        // Chuyển đổi chuỗi thời gian ISO 8601 thành đối tượng Date
+        const targetDate = new Date(iso8601Time);
+      
+        // Lấy thời gian hiện tại
+        const currentDate = new Date();
+      
+        // Tính khoảng cách thời gian
+        const timeDifference = Math.floor((currentDate - targetDate) / 1000); // Đổi thành giây
+      
+        if (timeDifference < 60) {
+          return `${timeDifference} giây trước`;
+        } else if (timeDifference < 3600) {
+          const minutes = Math.floor(timeDifference / 60);
+          return `${minutes} phút trước`;
+        } else {
+          const hours = Math.floor(timeDifference / 3600);
+          return `${hours} giờ trước`;
+        }
+      }
+
     useEffect(() => {
         setRequestFriendData(data);
+        console.log('req: ', requestFriendData);
         setStatus(undefined)
     }, [data])
     return <View style={{ width: '100%', paddingVertical: 5, flexDirection: 'row' }}>
@@ -110,7 +133,7 @@ export default function RequestFriend({ navigation, data }) {
             <View style={{ justifyContent: 'space-between', flexDirection: 'row' }}>
                 <Text style={{ fontSize: 17, fontWeight: '600' }}>{requestFriendData?.username}</Text>
                 {
-                    status === undefined ? <Text style={{ color: COMMON_COLOR.GRAY_TEXT_COLOR }}>{getTimeSendRequestFriend(requestFriendData?.created)}</Text>
+                    status === undefined ? <Text style={{ color: COMMON_COLOR.GRAY_TEXT_COLOR }}>{formatTimeAgo(requestFriendData.created)}</Text>
                         : <Entypo style={{ top: 0, right: 0 }} onPress={() => setIsShowModalExpand(true)}
                             name="dots-three-horizontal" size={18} color="#626262" />
                 }
