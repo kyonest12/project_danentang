@@ -80,7 +80,8 @@ export default function RequestFriend({ navigation, data }) {
     );
     const handleSendRequestFriend = (userId, isAccept) => {
         userService.setAcceptFriend(userId, isAccept).then((result) => {
-            if (isAccept === 1) setStatus('Các bạn đã là bạn bè');
+            console.log('res fr: ', result);
+            if (isAccept == '1') setStatus('Các bạn đã là bạn bè');
             else setStatus('Đã gỡ lời mời');
         }).catch((e) => {
             console.log(e.response.data);
@@ -105,9 +106,12 @@ export default function RequestFriend({ navigation, data }) {
         } else if (timeDifference < 3600) {
           const minutes = Math.floor(timeDifference / 60);
           return `${minutes} phút trước`;
-        } else {
+        } else if (timeDifference < 3600 * 24) {
           const hours = Math.floor(timeDifference / 3600);
           return `${hours} giờ trước`;
+        } else {
+            const days = Math.floor(timeDifference / (3600*24));
+            return `${days} ngày trước`;
         }
       }
 
@@ -144,11 +148,11 @@ export default function RequestFriend({ navigation, data }) {
                     : <>
                         {requestFriendData?.same_friends > 0 && <Text style={{ marginTop: 2, color: COMMON_COLOR.GRAY_TEXT_COLOR }}>{`${requestFriendData?.same_friends} bạn chung`}</Text>}
                         <View style={{ flexDirection: 'row', marginTop: 10 }}>
-                            <TouchableOpacity onPress={() => handleSendRequestFriend(requestFriendData.id, 1)}
+                            <TouchableOpacity onPress={() => handleSendRequestFriend(requestFriendData.id, '1')}
                                 style={{ backgroundColor: COMMON_COLOR.BLUE_COLOR, flex: 1, padding: 10, marginRight: 3, borderRadius: 5 }}>
                                 <Text style={{ color: 'white', textAlign: 'center', fontWeight: '600', fontSize: 15 }}>Chấp nhận</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => handleSendRequestFriend(requestFriendData.id, 0)}
+                            <TouchableOpacity onPress={() => handleSendRequestFriend(requestFriendData.id, '0')}
                                 style={{ backgroundColor: COMMON_COLOR.GRAY_COLOR_BACKGROUND, flex: 1, padding: 10, marginLeft: 3, borderRadius: 5 }}>
                                 <Text style={{ textAlign: 'center', fontWeight: '600', fontSize: 15 }}>Xóa</Text>
                             </TouchableOpacity>

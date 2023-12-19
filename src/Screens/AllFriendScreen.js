@@ -22,12 +22,13 @@ import { useNetInfo } from '@react-native-community/netinfo';
 import userService from '../Services/Api/userService';
 import { delay, getTimeSendRequestFriend } from '../Services/Helper/common';
 import MyFriend from '../Components/MyFriend';
+import { ActivityIndicator } from 'react-native-paper';
 function AllFriendScreen({ route, navigation }) {
     const title = route.params?.title;
     const targetUserId = route.params?.targetUserId;
     const showFilterTab = route.params?.showFilterTab;
     const showSearchFriend = route.params?.showSearchFriend;
-    const defaultCount = 1;
+    const defaultCount = 8;
     const defaultIndex = useRef(0);
     const dispatch = useDispatch();
     const netInfo = useNetInfo();
@@ -37,7 +38,7 @@ function AllFriendScreen({ route, navigation }) {
     const [listFriend, setListFriend] = useState([]);
     const [listFriendTotal, setListFriendTotal] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const onRefresh = async () => {
         setRefreshing(true);
         if (!isLoading) {
@@ -50,10 +51,11 @@ function AllFriendScreen({ route, navigation }) {
         setRefreshing(false);
     };
     const handleGetListRequest = () => {
-        userService.getUserFriends(targetUserId, defaultIndex.current, defaultCount).then((result) => {
+        userService.getUserFriends(targetUserId, 0, defaultCount).then((result) => {
             defaultIndex.current += defaultCount;
-            console.log('fr: ', result);
-            setListFriend(result.data.friends)
+            console.log('fr: ', result.data.friends);
+            setListFriend(result.data.friends);
+            setIsLoading(false);
         }).catch(e => {
             setListFriend([])
             console.log('lỗi: ',e);
@@ -66,9 +68,7 @@ function AllFriendScreen({ route, navigation }) {
     };
 
     useEffect(() => {
-        if (!isLoading) {
-            handleGetListRequest()
-        }
+        handleGetListRequest();
     }, []);
     useEffect(() => {
         let newList = listFriendTotal;
@@ -123,23 +123,27 @@ function AllFriendScreen({ route, navigation }) {
                 scrollEventThrottle={400} // kich hoat onScroll trong khung hinh co do dai 400
             >
                 <View style={{ backgroundColor: 'white', paddingHorizontal: 20 }}>
-                    <View>
-                        {!refreshing && <View style={{ flexDirection: 'row', marginVertical: 10 }}>
-                            {listFriendTotal.length > 0 ?
-                                <>
-                                    <Text style={{ fontWeight: 'bold', fontSize: 20 }}>{`${listFriendTotal?.length} người bạn`}</Text>
-                                </>
-                                : <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Không có bạn bè</Text>
-                            }
-                        </View>}
-                        <View style={{ marginHorizontal: -5 }}>
-                            {listFriendTotal?.map((item, index) => {
-                                return <View key={index} >
-                                    <MyFriend navigation={navigation} data={item} updateListFriends={() => handleGetListRequest()} />
-                                </View>
-                            })}
+                    {isLoading ? (
+                        <ActivityIndicator size="large" color="#0000ff" marginTop="10" />
+                    ) : (
+                        <View>
+                            {!refreshing && <View style={{ flexDirection: 'row', marginVertical: 10 }}>
+                                {listFriendTotal.length > 0 ?
+                                    <>
+                                        <Text style={{ fontWeight: 'bold', fontSize: 20 }}>{`${listFriendTotal?.length} người bạn`}</Text>
+                                    </>
+                                    : <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Không có bạn bè</Text>
+                                }
+                            </View>}
+                            <View style={{ marginHorizontal: -5 }}>
+                                {listFriendTotal?.map((item, index) => {
+                                    return <View key={index} >
+                                        <MyFriend navigation={navigation} data={item} updateListFriends={() => handleGetListRequest()} />
+                                    </View>
+                                })}
+                            </View>
                         </View>
-                    </View>
+                    )}
                 </View>
             </ScrollView>
         </View>
