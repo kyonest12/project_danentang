@@ -39,6 +39,11 @@ export default styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 24
     },
+    description: {
+        marginTop: height*0.01,
+        fontSize: 15,
+        textAlign: 'center',
+    },
     addNews: {
         borderRadius: 5,
         backgroundColor: '#2374E1',

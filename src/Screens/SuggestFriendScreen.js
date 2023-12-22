@@ -23,7 +23,7 @@ import userService from '../Services/Api/userService';
 import { delay, getTimeSendRequestFriend } from '../Services/Helper/common';
 import MyFriend from '../Components/MyFriend';
 function SuggestFriendScreen({ route, navigation }) {
-    const defaultCount = 1;
+    const defaultCount = 5;
     const defaultIndex = useRef(0);
     const dispatch = useDispatch();
     const netInfo = useNetInfo();
@@ -46,12 +46,13 @@ function SuggestFriendScreen({ route, navigation }) {
         setRefreshing(false);
     };
     const handleGetListRequest = () => {
-        userService.getSuggestFriends(defaultIndex.current, defaultCount).then((result) => {
+        userService.getSuggestFriends("0", defaultCount).then((result) => {
+            console.log(result);
             defaultIndex.current += defaultCount;
-            setListFriend(result.data.list_users)
+            setListFriend(result.data)
         }).catch(e => {
             setListFriend([])
-            console.log(e);
+            console.log(e.response.data);
         })
     }
     const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {

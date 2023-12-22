@@ -19,7 +19,7 @@ export default function EditPublicInfor({ navigation }) {
                         Chi tiết bạn sẽ chọn hiển thị công khai
                     </Text>
                 </View>
-                <View style={styles.secondView}>
+                {/* <View style={styles.secondView}>
                     <Text style={styles.title}>
                         Công việc
                     </Text>
@@ -33,7 +33,7 @@ export default function EditPublicInfor({ navigation }) {
                             <MaterialCommunityIcons name="pencil" size={30} color='#000000'/>
                         </View>
                     </View>
-                </View>
+                </View> */}
 
                 <View style={styles.thirdView}>
                     <Text style={styles.title}>
@@ -73,12 +73,12 @@ export default function EditPublicInfor({ navigation }) {
 
                 <View style={styles.secondView}>
                     <Text style={styles.title}>
-                        Tỉnh/Thành phố hiện tại
+                        Tỉnh/Thành phố
                     </Text>
                     <View style={{ flexDirection: 'row', marginTop: 20}}>
                         <View style={{flex: 12}}>
                             <Text style = {styles.text}>
-                                {'Sống tại ' + userInfor.city}
+                                {'Đến từ ' + userInfor.city}
                             </Text>
                         </View>
                         <TouchableOpacity
@@ -92,7 +92,7 @@ export default function EditPublicInfor({ navigation }) {
                 </View>
                 <View style={styles.secondView}>
                     <Text style={styles.title}>
-                        Quê quán
+                        Đất nước
                     </Text>
                     <View style={{ flexDirection: 'row', marginTop: 20}}>
                         <View style={{flex: 12}}>
@@ -101,7 +101,26 @@ export default function EditPublicInfor({ navigation }) {
                             </Text>
                         </View>
                         <TouchableOpacity
-                            onPress={() => navigation.navigate('editCity', {isEditCity: false})}
+                            onPress={() => navigation.navigate('editCountry', {isEditCity: false})}
+                        >
+                            <View style={{flex: 1}}>
+                                <MaterialCommunityIcons name="pencil" size={30} color='#000000'/>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                <View style={styles.secondView}>
+                    <Text style={styles.title}>
+                        Địa chỉ
+                    </Text>
+                    <View style={{ flexDirection: 'row', marginTop: 20}}>
+                        <View style={{flex: 12}}>
+                            <Text style = {styles.text}>
+                                {'Sống tại ' + userInfor.address}
+                            </Text>
+                        </View>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('editAddress', {isEditCity: false})}
                         >
                             <View style={{flex: 1}}>
                                 <MaterialCommunityIcons name="pencil" size={30} color='#000000'/>
@@ -112,11 +131,13 @@ export default function EditPublicInfor({ navigation }) {
             </ScrollView>
         </View>
         <View style={styles.viewButtonSave}>
-            <View style={styles.saveButton}>
-                <Text style ={{color: 'white', fontSize: 20}}>
-                    Lưu
-                </Text>
-            </View>
+            <TouchableOpacity onPress={() => {navigation.navigate('editProfile')}}>
+                <View style={styles.saveButton}>
+                    <Text style ={{color: 'white', fontSize: 20}}>
+                        Lưu
+                    </Text>
+                </View>
+            </TouchableOpacity>
         </View>
     </View>
 }

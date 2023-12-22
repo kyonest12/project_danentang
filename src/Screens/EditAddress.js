@@ -4,24 +4,22 @@ import styles from './style/editDescription';
 import React, { useEffect, useState, memo } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { Ionicons } from 'react-native-vector-icons';
-import userSlice, {setUserInfo} from '../Redux/userSlice';
-import userService from '../Services/Api/userService';
-import { updateDescription } from '../Redux/userSlice';
+import { updateAddress } from '../Redux/userSlice';
 
-function EditDescription({navigation}) {
+export default function EditAddress({navigation, route}){
+
     const dispatch = useDispatch();
     const [isActive, setActive] = useState(false);
-    const {userInfor, isLoading} = useSelector((state) => state.user);
-    const [description, setDescription] = useState(userInfor.description);
-    const [desLen, setDesLen] = useState(description.length);
+    const {userInfor} = useSelector((state) => state.user);
+    const [address, setAddress] = useState(userInfor.address);
     const {user} = useSelector(
         (state) => state.auth
     );
     useEffect(() => {
-        if (description.length > 0) {
+        if (address != userInfor.address ) {
             navigation.setOptions({
                 headerRight: () => (
-                    <TouchableOpacity onPress={() => { setUserDescription(); navigation.goBack() }}>
+                    <TouchableOpacity onPress={() => { setUserPublicInfor(); navigation.goBack() }}>
                         <Text style={{ color: 'black', fontSize: 18 }}>Lưu</Text>
                     </TouchableOpacity>
                 )
@@ -33,14 +31,14 @@ function EditDescription({navigation}) {
                 )
             })
         }
-    },[description]);
+    },[address]);
 
-
-    const setUserDescription = () => {
-        // dispatch(setUserInfo({des: description, userId: user.id}));
-        dispatch(updateDescription(description));
-        console.log('ok: ', description);
+    const setUserPublicInfor = () => {
+        // if (isEditCity) dispatch(setUserCity({city: city, userId: user.id}));
+        // else dispatch(setUserCountry({country: city, userId: user.id}))
+        dispatch(updateAddress(address));
     }
+
     return <View style={styles.container}>
         <View style={styles.firstView}>
             <Image source={user?.avatar === null ? require('../../assets/images/default_avatar.jpg') :{uri: user.avatar}} style = {styles.avatar}/>
@@ -56,22 +54,14 @@ function EditDescription({navigation}) {
                 </View>
             </View>
         </View>
-        <View style={isActive? styles.editViewFocus: styles.editView}>
-            <TextInput
-                numberOfLines={9}
-                value={description}
-                variant="standard"
-                multiline={true}
-                textAlignVertical = 'top'
-                color='#1a53ff'
-                style ={{padding: 10, borderRadius: 8, paddingTop: 20}}
-                onFocus={()=>setActive(true)}
-                helperText = {desLen + '/101' }
-                onChangeText={(text) => {setDesLen(text.length), setDescription(text)}}
-            />
-        </View>
-    </View>
+        <TextInput
+            variant="standard"
+            textAlignVertical = 'top'
+            color='#1a53ff'
+            style ={{paddingTop: 20}}
+            defaultValue={userInfor.address}
+            onChangeText={(text) => {setAddress(text)}}
+            maxLength = {101}
+        />
+    </View> 
 }
-
-
-export default EditDescription;

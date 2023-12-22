@@ -5,6 +5,7 @@ import React, { useEffect, useState, memo } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { Ionicons } from 'react-native-vector-icons';
 import {setUserCity, setUserCountry} from '../Redux/userSlice';
+import { updateCity } from '../Redux/userSlice';
 
 export default function EditCity({navigation, route}) {
     const {isEditCity} = route.params
@@ -35,8 +36,9 @@ export default function EditCity({navigation, route}) {
     },[city]);
 
     const setUserPublicInfor = () => {
-        if (isEditCity) dispatch(setUserCity({city: city, userId: user.id}));
-        else dispatch(setUserCountry({country: city, userId: user.id}))
+        // if (isEditCity) dispatch(setUserCity({city: city, userId: user.id}));
+        // else dispatch(setUserCountry({country: city, userId: user.id}))
+        dispatch(updateCity(city));
     }
     return <View style={styles.container}>
         <View style={styles.firstView}>

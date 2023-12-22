@@ -80,7 +80,8 @@ export default function RequestFriend({ navigation, data }) {
     );
     const handleSendRequestFriend = (userId, isAccept) => {
         userService.setAcceptFriend(userId, isAccept).then((result) => {
-            if (isAccept === 1) setStatus('Các bạn đã là bạn bè');
+            console.log('res fr: ', result);
+            if (isAccept == '1') setStatus('Các bạn đã là bạn bè');
             else setStatus('Đã gỡ lời mời');
         }).catch((e) => {
             console.log(e.response.data);
@@ -89,8 +90,34 @@ export default function RequestFriend({ navigation, data }) {
             ]);
         })
     }
+
+    function formatTimeAgo(iso8601Time) {
+        // Chuyển đổi chuỗi thời gian ISO 8601 thành đối tượng Date
+        const targetDate = new Date(iso8601Time);
+      
+        // Lấy thời gian hiện tại
+        const currentDate = new Date();
+      
+        // Tính khoảng cách thời gian
+        const timeDifference = Math.floor((currentDate - targetDate) / 1000); // Đổi thành giây
+      
+        if (timeDifference < 60) {
+          return `${timeDifference} giây trước`;
+        } else if (timeDifference < 3600) {
+          const minutes = Math.floor(timeDifference / 60);
+          return `${minutes} phút trước`;
+        } else if (timeDifference < 3600 * 24) {
+          const hours = Math.floor(timeDifference / 3600);
+          return `${hours} giờ trước`;
+        } else {
+            const days = Math.floor(timeDifference / (3600*24));
+            return `${days} ngày trước`;
+        }
+      }
+
     useEffect(() => {
         setRequestFriendData(data);
+        console.log('req: ', requestFriendData);
         setStatus(undefined)
     }, [data])
     return <View style={{ width: '100%', paddingVertical: 5, flexDirection: 'row' }}>
@@ -110,7 +137,7 @@ export default function RequestFriend({ navigation, data }) {
             <View style={{ justifyContent: 'space-between', flexDirection: 'row' }}>
                 <Text style={{ fontSize: 17, fontWeight: '600' }}>{requestFriendData?.username}</Text>
                 {
-                    status === undefined ? <Text style={{ color: COMMON_COLOR.GRAY_TEXT_COLOR }}>{getTimeSendRequestFriend(requestFriendData?.created)}</Text>
+                    status === undefined ? <Text style={{ color: COMMON_COLOR.GRAY_TEXT_COLOR }}>{formatTimeAgo(requestFriendData.created)}</Text>
                         : <Entypo style={{ top: 0, right: 0 }} onPress={() => setIsShowModalExpand(true)}
                             name="dots-three-horizontal" size={18} color="#626262" />
                 }
@@ -121,11 +148,11 @@ export default function RequestFriend({ navigation, data }) {
                     : <>
                         {requestFriendData?.same_friends > 0 && <Text style={{ marginTop: 2, color: COMMON_COLOR.GRAY_TEXT_COLOR }}>{`${requestFriendData?.same_friends} bạn chung`}</Text>}
                         <View style={{ flexDirection: 'row', marginTop: 10 }}>
-                            <TouchableOpacity onPress={() => handleSendRequestFriend(requestFriendData.id, 1)}
+                            <TouchableOpacity onPress={() => handleSendRequestFriend(requestFriendData.id, '1')}
                                 style={{ backgroundColor: COMMON_COLOR.BLUE_COLOR, flex: 1, padding: 10, marginRight: 3, borderRadius: 5 }}>
                                 <Text style={{ color: 'white', textAlign: 'center', fontWeight: '600', fontSize: 15 }}>Chấp nhận</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => handleSendRequestFriend(requestFriendData.id, 0)}
+                            <TouchableOpacity onPress={() => handleSendRequestFriend(requestFriendData.id, '0')}
                                 style={{ backgroundColor: COMMON_COLOR.GRAY_COLOR_BACKGROUND, flex: 1, padding: 10, marginLeft: 3, borderRadius: 5 }}>
                                 <Text style={{ textAlign: 'center', fontWeight: '600', fontSize: 15 }}>Xóa</Text>
                             </TouchableOpacity>

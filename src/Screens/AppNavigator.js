@@ -40,6 +40,8 @@ import { onChangeSocket } from '../Redux/authSlice';
 import AccountSetting from './settings/AccountSetting';
 import NameSetting from './settings/NameSetting';
 import PasswordSetting from './settings/PasswordSetting';
+import EditAddress from './EditAddress';
+import EditCountry from './EditCountry';
 const socket = io(`${CHAT_SERVER_URL}`);
 export default function AppNavigator() {
     const netInfo = useNetInfo();
@@ -83,6 +85,8 @@ export default function AppNavigator() {
                 <Stack.Screen name="pickCover" component={CoverImagePicker} options={{ title: 'Thay đổi ảnh bìa' }} />
                 <Stack.Screen name="editPublicInfo" component={EditPublicInfor} options={{ title: 'Thay đổi chi tiết' }} />
                 <Stack.Screen name="editCity" component={EditCity} options={{ title: 'Thay đổi chi tiết tỉnh/thành phố' }} />
+                <Stack.Screen name="editAddress" component={EditAddress} options={{ title: 'Thay đổi chi tiết địa chỉ' }} />
+                <Stack.Screen name="editCountry" component={EditCountry} options={{ title: 'Thay đổi chi tiết đất nước' }} />
                 <Stack.Screen name="allfriend" component={AllFriendScreen} />
                 <Stack.Screen name="anothervideo" component={AnotherVideoScreen} options={{ headerShown: false }} />
                 <Stack.Screen name="suggestfriend" component={SuggestFriendScreen} options={{ title: 'Gợi ý' }} />

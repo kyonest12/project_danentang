@@ -62,6 +62,7 @@ function ProfileScreen({ navigation, route }) {
     const [refreshing, setRefreshing] = useState(false);
     const [reload, setReload] = useState(false);
     const { userInfor, successChangeAva } = useSelector((state) => state.user);
+    // console.log(userInfor);
     const [userInfors, setUserInfors] = useState(userInfor);
     const onRefresh = async () => {
         setRefreshing(true);
@@ -75,15 +76,17 @@ function ProfileScreen({ navigation, route }) {
         }).catch(e => {
             console.log(e);
         });
-        userService.getUserFriends(userId ? userId : user.id, 0, 0).then((result) => {
-            setCntFriend(result.data.friends.length);
-            setFriends(result.data.friends.slice(0, 6));
-        }).catch(e => {
-            console.log(e);
-        });
+        
         if (userId) {
             userService.getUserInfor(userId).then((result) => {
                 setUserInfors(result.data);
+            }).catch(e => {
+                console.log(e);
+            });
+            userService.getUserFriends(userId, 0, 5).then((result) => {
+                console.log(result);
+                setCntFriend(result.data.friends.length);
+                setFriends(result.data.friends.slice(0, 6));
             }).catch(e => {
                 console.log(e);
             });
@@ -310,7 +313,10 @@ function ProfileScreen({ navigation, route }) {
                     <Text style={styles.title}>
                         Chi tiết
                     </Text>
-                    <View style={styles.rowInfor}>
+                    <Text style={styles.description}>
+                        {userInfors?.description}
+                    </Text>
+                    {/* <View style={styles.rowInfor}>
                         <MaterialCommunityIcons name='school' size={27} color='#909698' />
                         <Text style={styles.hardTextAddress}>
                             Học tại
@@ -336,7 +342,7 @@ function ProfileScreen({ navigation, route }) {
                         <Text style={styles.data}>
                             Tôi yêu bách khoa
                         </Text>
-                    </View>
+                    </View> */}
                     {
                         (userId ? userInfors.city : userInfor.city) ?
                             <View style={styles.rowInfor}>
@@ -345,7 +351,20 @@ function ProfileScreen({ navigation, route }) {
                                     Sống tại
                                 </Text>
                                 <Text style={styles.data}>
-                                    {userId ? userInfors.city : userInfor.city}
+                                    {userId ? userInfors.address : userInfor.address}
+                                </Text>
+                            </View>
+                            : <View></View>
+                    }
+                    {
+                        (userId ? userInfors.address : userInfor.address) ?
+                            <View style={styles.rowInfor}>
+                                <FontAwesome5 name='map-marker-alt' size={25} color='#909698' />
+                                <Text style={styles.hardTextCountry}>
+                                    Đến từ
+                                </Text>
+                                <Text style={styles.data}>
+                                    {userInfors?.city}
                                 </Text>
                             </View>
                             : <View></View>
@@ -359,6 +378,16 @@ function ProfileScreen({ navigation, route }) {
                                 </Text>
                                 <Text style={styles.data}>
                                     {userInfors?.country}
+                                </Text>
+                            </View>
+                            : <View></View>
+                    }
+                    {
+                        (userId ? userInfors.link : userInfor.link) ?
+                            <View style={styles.rowInfor}>
+                                <FontAwesome5 name='link' size={25} color='#909698'/>
+                                <Text style={styles.data}>
+                                    {userInfors?.link}
                                 </Text>
                             </View>
                             : <View></View>

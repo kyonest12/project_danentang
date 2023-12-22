@@ -60,7 +60,13 @@ export default styles = StyleSheet.create({
     },
     hardTextAddress: {
         fontSize: 18,
-        marginStart: 9
+        marginStart: 9,
+        fontWeight: 'bold'
+    },
+    hardTextLink:{
+        fontSize: 18,
+        marginStart: 9,
+        color: '#0866FF'
     },
     hardTextCountry: {
         fontSize: 18,

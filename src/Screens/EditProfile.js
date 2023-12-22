@@ -9,12 +9,31 @@ import { MaterialCommunityIcons } from 'react-native-vector-icons';
 import {FontAwesome5} from 'react-native-vector-icons';
 import {getUserInfo} from '../Redux/userInforSlice';
 import styles from './style/edit';
+import { WebView } from 'react-native-webview';
+import userService from '../Services/Api/userService';
+import { Alert, ToastAndroid } from 'react-native';
+import {resetInforWithData} from '../Redux/userSlice';
 
 function EditProfileScreen ({navigation}) {
     const editTitle = 'Chỉnh sửa';
     const dispatch = useDispatch();
     const {userInfor, isLoading} = useSelector((state) => state.user);
-    console.log('dataEdit: ', userInfor);
+    console.log(userInfor);
+    //open web view
+    function openWebView(url) {
+        console.log('open web view');
+        return (
+            <WebView source={{ uri: url }} style={{ flex: 1 }} />
+        );
+    }
+    const { user } = useSelector(
+        (state) => state.auth
+    );
+
+    const showToast = (message) => {
+        ToastAndroid.show(message, ToastAndroid.SHORT);
+    };
+    // console.log('user: ', user);
     return <ScrollView style={styles.container}>
         <View style={styles.editAvatar}>
             <View style={styles.titleAvatars}>
@@ -66,7 +85,7 @@ function EditProfileScreen ({navigation}) {
                     onPress={()=> navigation.navigate('editDescription')}
                 >
                     <Text style={styles.titleButton}>
-                        Thêm
+                        Chỉnh sửa
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -94,7 +113,7 @@ function EditProfileScreen ({navigation}) {
                 </TouchableOpacity>
             </View>
             <View>
-                <View style={styles.rowInfor}>
+                {/* <View style={styles.rowInfor}>
                     <MaterialCommunityIcons name='school' size={27} color='#909698'/>
                     <Text style={styles.hardTextAddress}>
                         Học tại
@@ -102,8 +121,8 @@ function EditProfileScreen ({navigation}) {
                     <Text style={styles.hardTextAddress} numberOfLines={2}>
                         Đại học Bách Khoa Hà Nội
                     </Text>
-                </View>
-                <View style={styles.rowInfor}>
+                </View> */}
+                {/* <View style={styles.rowInfor}>
                     <MaterialCommunityIcons name='school' size={27} color='#909698'/>
                     <Text style={styles.hardTextAddress}>
                         Từng học tại
@@ -111,8 +130,8 @@ function EditProfileScreen ({navigation}) {
                     <Text style={styles.hardTextAddress}>
                         Đại học Bách Khoa Hà Nội
                     </Text>
-                </View>
-                <View style={styles.rowInfor}>
+                </View> */}
+                {/* <View style={styles.rowInfor}>
                     <MaterialCommunityIcons name='school' size={27} color='#909698'/>
                     <Text style={styles.hardTextAddress}>
                         Đã học tại
@@ -120,14 +139,14 @@ function EditProfileScreen ({navigation}) {
                     <Text style={styles.hardTextAddress}>
                         Tôi yêu bách khoa
                     </Text>
-                </View>
+                </View> */}
                 <View style={styles.rowInfor}>
                     <Icon name='home-sharp' size={25} color='#909698'/>
-                    <Text style={styles.hardTextAddress}>
+                    <Text style={styles.hardTextCountry}>
                         Sống tại
                     </Text>
                     <Text style={styles.hardTextAddress}>
-                        {userInfor.city}
+                        {userInfor.address ? userInfor.address : '\'chưa cập nhật\''}
                     </Text>
                 </View>
                 <View style={styles.rowInfor}>
@@ -136,7 +155,22 @@ function EditProfileScreen ({navigation}) {
                         Đến từ
                     </Text>
                     <Text style={styles.hardTextAddress}>
-                        {userInfor.country}
+                        {userInfor.country ? userInfor.country : '\'chưa cập nhật\''}
+                    </Text>
+                </View>
+                <View style={styles.rowInfor}>
+                    <FontAwesome5 name='map-marker-alt' size={25} color='#909698'/>
+                    <Text style={styles.hardTextCountry}>
+                        Đến từ
+                    </Text>
+                    <Text style={styles.hardTextAddress}>
+                        {userInfor.city ? userInfor.city : '\'chưa cập nhật\''}
+                    </Text>
+                </View>
+                <View style={styles.rowInfor}>
+                    <FontAwesome5 name='link' size={25} color='#909698'/>
+                    <Text style={styles.hardTextLink} onPress={() => openWebView(userInfor.link)}>
+                        {userInfor.link ? userInfor.link : '\'chưa cập nhật\''}
                     </Text>
                 </View>
                 <View style={styles.rowInfor}>
@@ -159,7 +193,7 @@ function EditProfileScreen ({navigation}) {
                 </TouchableOpacity>
             </View>
         </View>
-        <View style={styles.favorite}>
+        {/* <View style={styles.favorite}>
             <View style={styles.titleAvatars}>
                 <Text style={styles.title}>
                     Liên kết
@@ -170,12 +204,42 @@ function EditProfileScreen ({navigation}) {
                     </Text>
                 </TouchableOpacity>
             </View>
-        </View>
+            <View>
+                <View style={styles.rowInfor}>
+                    <FontAwesome5 name='link' size={25} color='#909698'/>
+                    <Text style={styles.hardTextLink}>
+                        {userInfor.link}
+                    </Text>
+                </View>
+            </View>
+        </View> */}
         <View style={styles.editInforButton}>
-            <FontAwesome5 name='user-minus' color='#3488f4'/>
-            <Text style={{color: '#3488f4', marginStart: 5, fontSize: 18}}>
-                Chỉnh sửa thông tin giới thiệu
-            </Text>
+            <TouchableOpacity onPress={() => {
+                let formData = new FormData();
+                formData.append("username", user.username);
+                formData.append("description", userInfor.description);
+                formData.append("address", userInfor.address);
+                formData.append("country", userInfor.country);
+                formData.append("city", userInfor.city);
+                formData.append("link", userInfor.link);
+                // console.log('userInfor: ', userInfor);
+                // console.log('formData: ',formData);
+                userService.updateProfile(formData).then((res) => {
+                    console.log(res);
+                    // dispatch(resetInforWithData(res))
+                    showToast('Cập nhật thành công!');
+                }).catch((e) => {
+                    console.log(e);
+                    Alert.alert("Có lỗi xảy ra", "Vui lòng thử lại sau.", [
+                        { text: "OK", onPress: () => null }
+                    ]);
+                })
+            }}>
+                <FontAwesome5 name='user-minus' color='#3488f4'/>
+                <Text style={{color: '#3488f4', marginStart: 5, fontSize: 18}}>
+                    Chỉnh sửa thông tin giới thiệu
+                </Text>
+            </TouchableOpacity>
         </View>
     </ScrollView>
 }
