@@ -78,9 +78,10 @@ export default function CreatePostScreen({ route, navigation }) {
         } else if (newData.length > 0 && post.checkVideo) {
             formData.append("video", { name: newData[0].filename, uri: newData[0].uri, type: newData[0].type })
         }
+        console.log("DATA", formData)
         if (!post.checkEdit) {
             // check xem người dùng đã nhập các thông tin tối thiểu hay chưa
-            dispatch(createPost({ described, status, formData, isMedia: (post.checkImage || post.checkVideo), videoWidth: post.videoWidth, videoHeight: post.videoHeight }));
+            dispatch(createPost({ described, status, formData, isMedia: (post.checkImage || post.checkVideo)}));
         } else {
             //console.log({ id: post.postID, described, status, formData, isMedia: (newData.length==0), videoWidth: post.videoWidth, videoHeight: post.videoHeight, image_del: JSON.stringify(image_del), video_del: post.video_del});
             dispatch(editPost({ id: post.postID, described, status, formData, isMedia: !(newData.length == 0), videoWidth: post.videoWidth, videoHeight: post.videoHeight, image_del: JSON.stringify(image_del), video_del: post.video_del }))

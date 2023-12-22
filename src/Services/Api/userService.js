@@ -7,7 +7,12 @@ const getAllUsers = () => {
 };
 
 const getUserInfor = (user_id) => {
-  return axios.post(`/get_user_info?user_id=${user_id}`);
+  return axios.post(
+    '/get_user_info',
+    {
+      user_id:user_id
+    }
+  );
 }
 
 const setUserDescription = (descrtiption, userId) => {
