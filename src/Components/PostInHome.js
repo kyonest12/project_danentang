@@ -118,7 +118,11 @@ function PostInHome({ navigation, postData, userID, avatar }) {
         }
     }
     const uriEmoji = () => {
-        return data.find(x => x.name === (post?.state)).img;
+        emo = data.find(x => x.name === (post?.state))
+        if (emo)
+            return data.find(x => x.name === (post?.state)).img;
+        else
+            return null
     }
     useEffect(() => {
         setPost(postData);
@@ -164,10 +168,9 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                             }}>
                                 <Text style={{ width: 200 }}>
                                     <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{post?.author?.name + ' '}</Text>
-                                    
-                                    {post?.state && <Text style={{ fontWeight: 'normal', fontSize: 15 }}>
-                                        {` đang cảm thấy ${post?.state}`}
-                                    </Text>}
+                                        {post?.state && <Text style={{ fontWeight: 'normal', fontSize: 15 }}>
+                                            {` đang cảm thấy ${post?.state}`}
+                                        </Text>}
                                 </Text>
                             </TouchableOpacity>
                         </Text>

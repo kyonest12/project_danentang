@@ -13,15 +13,15 @@ const login = async (email, password) => {
     }
   );
 };
-const signup = async (email, password, name, birthday,) => {
+const signup = async (email, password, name, birthday) => {
   console.log(password, email, name, birthday);
   return await axios.post(
     '/signup',
     {
       email: email,
       password: password,
-      name: name,
-      birthday: Date(birthday),
+      uuid: "string"
+      //birthday: Date(birthday),
     }
   );
 };
@@ -32,7 +32,7 @@ const changePassword = async (password, newPassword) => {
 const checkExistEmail = async (email) => {
   console.log(email);
   return await axios.post(
-    '/checkexistemail',
+    '/check_email',
     {
       email: email,
     }

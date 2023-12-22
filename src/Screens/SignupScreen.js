@@ -19,6 +19,7 @@ import { login, changeLoginWithCache } from "../Redux/authSlice";
 import { AntDesign } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
 import { COMMON_COLOR } from "../Services/Helper/constant";
+import userService from "../Services/Api/userService";
 export default function SignupScreen({ navigation }) {
     const dispatch = useDispatch();
     // state
@@ -499,6 +500,7 @@ export default function SignupScreen({ navigation }) {
                                                     color={COMMON_COLOR.BLUE_COLOR}
                                                     style={{ marginTop: 50, width: '70%' }}
                                                     onPress={() => {
+                                                        userService.changeInforAfterSignup(firstName.trim() + ' ' + lastName.trim(), "")
                                                         dispatch(login({ email: email, password: password }));
                                                         dispatch(changeLoginWithCache(false))
                                                     }

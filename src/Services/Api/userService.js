@@ -15,6 +15,16 @@ const getUserInfor = (user_id) => {
   );
 }
 
+const changeInforAfterSignup = (name, avatar) => {
+  return axios.post(
+    '/change_profile_after_signup',
+    {
+      username : name,
+      avatar : avatar
+    }
+  )
+}
+
 const setUserDescription = (descrtiption, userId) => {
   return axios.post(`/set_user_info?user_id=${userId}&description=${descrtiption}`);
 }
@@ -93,7 +103,8 @@ const userService = {
   setCoverImage,
   setUserCity,
   setUserCountry,
-  getUserInforWithToken
+  getUserInforWithToken,
+  changeInforAfterSignup
 };
 
 
