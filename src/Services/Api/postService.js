@@ -57,8 +57,15 @@ const deletePost = async (data) => {
   const {id} = data;
   return await axios.post(`/delete_post?&id=${id}`);
 }
-const getListVideos = (lastId, index, count) => {
-  return axios.post(`/get_list_videos?last_id=${lastId}&index=${index}&count=${count}`);
+const getListVideos = async (lastId, index, count) => {
+  return await axios.post(
+    '/get_list_videos',
+    {
+      last_id: lastId,
+      index: index,
+      count: count
+    }
+  );
 };
 const likePost = (postId) => {
   return axios.post(`like?id=${postId}`);
@@ -130,6 +137,36 @@ const getListPostsCache = async () => {
 const removePostsCache = async () => {
   await _setCache("listPosts", "");
 }
+
+const getNoti = async(index, count) => {
+  return axios.post(
+    '/get_notification',
+    {
+      index: index,
+      count: count
+    }
+  );
+}
+
+const feel = async(id, type) => {
+  return await axios.post(
+    '/feel',
+    {
+      id: id,
+      type: type
+    }
+  );
+}
+
+const deleteFeel = async(id) => {
+  return await axios.post(
+    '/delete_feel',
+    {
+      id: id,
+    }
+  );
+}
+
 const postService = {
   getListPosts,
   getListVideos,
@@ -146,5 +183,8 @@ const postService = {
   getMarkComment,
   getNumFeel,
   getNumMark,
+  getNoti,
+  feel,
+  deleteFeel,
 };
 export default postService;

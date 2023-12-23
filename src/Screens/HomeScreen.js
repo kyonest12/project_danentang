@@ -12,7 +12,7 @@ import { getUserInfo } from '../Redux/userSlice';
 
 import { COMMON_COLOR } from "../Services/Helper/constant";
 import { resetEmojiSlice, setUserID } from "../Redux/emojiSlice";
-//@trungtt123
+
 function HomeScreen({ route, onSwipeUp, onSwipeDown, navigation }) {
     const defaultCount = 10;
     const defaultIndex = 0;

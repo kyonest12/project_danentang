@@ -36,6 +36,7 @@ import DotModal from './modal/DotModal';
 import ReportModal from './modal/ReportModal';
 import { onChangeMute, onChangePlayVideoDetail, onChangePlayVideoTab } from '../Redux/videoSlice';
 import { resetEmojiSlice, setUserID } from '../Redux/emojiSlice';
+import { formatTimeDifference } from '../Services/Helper/common';
 function PostInVideo({ navigation, postData, isPlaying, userID }) {
     const dispatch = useDispatch();
     const video = useRef(null);
@@ -116,7 +117,11 @@ function PostInVideo({ navigation, postData, isPlaying, userID }) {
         }
     }
     const uriEmoji = () => {
-        return data.find(x => x.name === (post?.state)).img;
+        const emo = data.find(x => x.name === (post?.state))
+        if (emo)
+            return data.find(x => x.name === (post?.state)).img;
+        else
+            return null
     }
     useEffect(() => {
         if (post?.video && post?.video?.height && post?.video?.width) {
@@ -191,7 +196,7 @@ function PostInVideo({ navigation, postData, isPlaying, userID }) {
                     subtitle={
                         <Text>
                             <View style={{ flexDirection: 'row' }}>
-                                <Text style={{ fontSize: 12, color: '#606060' }}>{getTimeUpdatePostFromUnixTime(post?.modified)}</Text>
+                                <Text style={{ fontSize: 12, color: '#606060' }}>{formatTimeDifference(post?.created)}</Text>
                                 <Text style={{ fontSize: 10, marginHorizontal: 2, top: 1, color: '#606060' }}>{" • "}</Text>
                                 <Image style={{ width: 12, height: 12, top: 2, opacity: 0.6 }} source={require('../../assets/icons/public-icon-facebook.png')} />
                             </View>

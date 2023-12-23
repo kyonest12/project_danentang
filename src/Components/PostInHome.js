@@ -6,7 +6,8 @@ import {
     TouchableHighlight,
     View,
     Dimensions,
-    Image
+    Image,
+    Pressable
 } from 'react-native';
 import { connect } from 'react-redux';
 import { useDispatch, useSelector } from "react-redux";
@@ -32,6 +33,8 @@ import ReportModal from './modal/ReportModal';
 import { Audio } from 'expo-av';
 import { resetEmojiSlice, setUserID } from '../Redux/emojiSlice';
 import moment from 'moment';
+import {FlatList, Modal, ScrollView } from "react-native";
+import { Alert } from 'react-native';
 import { formatTimeDifference } from '../Services/Helper/common';
 function PostInHome({ navigation, postData, userID, avatar }) {
     const dispatch = useDispatch();
@@ -47,11 +50,13 @@ function PostInHome({ navigation, postData, userID, avatar }) {
     const [videoDimension, setVideoDimension] = useState({ width: 0, height: 0 });
     const widthLayout = Dimensions.get('window').width;
     const heightLayout = Dimensions.get('window').height;
-    
-    const [kudos, setKudos] = useState(0);
-    const [disappointed, setDisappointed] = useState(0);
-    const [trust, setTrust] = useState(0);
-    const [fake, setFake] = useState(0);
+
+    //___________________________________________________________________-
+    const [isModalVisible, setModalVisible] = useState(false);
+    const toggleModal = () => {
+        setModalVisible(!isModalVisible);
+    };
+    //___________________________________________________________________-
 
     const { user } = useSelector(
         (state) => state.auth
@@ -62,16 +67,6 @@ function PostInHome({ navigation, postData, userID, avatar }) {
             await postService.updateListPostsCache([result.data]);
         }).catch((e) => {
             console.log(e);
-        })
-
-        postService.getNumFeel(post.id).then(async (result) => {
-            setKudos(result.data.kudos);
-            setDisappointed(result.data.dissapointed);
-        })
-
-        postService.getNumMark(post.id).then(async (result) => {
-            setTrust(result.data.trust);
-            setFake(result.data.fake);
         })
     }
     const LeftContent = () => {
@@ -117,19 +112,48 @@ function PostInHome({ navigation, postData, userID, avatar }) {
             console.log(e);
         }
     }
+
+    const handleFeel = (can, isFelt, type) => {
+        console.log(isFelt)
+        if (can === false)
+            return;
+        if (isFelt === -1) {
+            postService.feel(post?.id, type).then((data) => {
+                print("FEEL: ", data)
+                toggleModal();
+                postUpdated();
+            }
+            ).catch((e) => {
+                console.log(e);
+                setIsError(true);
+            });
+            return
+        }
+        else {
+            postService.deleteFeel(post?.id).then((data) => {
+                print("FEEL: ", data)
+                toggleModal();
+                postUpdated();
+            }
+            ).catch((e) => {
+                console.log(e);
+                setIsError(true);
+            });
+            return
+        }
+    }
+
     const uriEmoji = () => {
-        emo = data.find(x => x.name === (post?.state))
+        const emo = data.find(x => x.name === (post?.state))
         if (emo)
             return data.find(x => x.name === (post?.state)).img;
         else
             return null
     }
+
+
     useEffect(() => {
         setPost(postData);
-        setKudos(kudos);
-        setDisappointed(disappointed);
-        setTrust(trust);
-        setFake(fake);
         console.log("_______________________________", post)
     }, [postData])
     return (
@@ -255,9 +279,18 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                             justifyContent: "space-between",
                         }}>
 
-                            <View style={{ flexDirection: "row", }}>
-                                <Text style={{ color: "#626262" }}>{trust} Trust </Text>
-                                <Text style={{ color: "#626262" }}>{fake} Fake </Text>
+                            <View activeOpacity={.75} style={{ flexDirection: "row", }}>
+                                <Ionicons style={{ top: 2 }} name="happy-sharp" size={22} color="#6BB7EC" />
+                                <Ionicons style={{ top: 2 }} name="sad-sharp" size={22} color="#FFC0CB" />
+                                <Text style={{ top: 4, left: 3, color: "#626262" }}>
+                                    {post?.is_felt === 1 ? `Bạn ${post?.like - 1 > 0 ? `và ${post.feel - 1} người khác` : ''}` : post.feel}
+                                </Text>
+                            </View>
+
+                            <View activeOpacity={.75} style={{ flexDirection: "row", }}>
+                                <Text style={{ top: 4, left: 3, color: "#626262" }}> 
+                                    {post.comment_mark} Marks
+                                </Text>
                             </View>
 
                         </View>
@@ -270,16 +303,30 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                             justifyContent: "space-between",
                         }}>
                             <View activeOpacity={.75} style={{ flexDirection: "row", }}>
-                                <Ionicons style={{ top: 2 }} name="happy-outline" size={22} color="#626262" />
-                                <Text style={{ top: 4, left: 3, color: "#626262" }}>{kudos} Kudos </Text>
-                            </View>
-                            <View activeOpacity={.75} style={{ flexDirection: "row", }}>
-                                <Ionicons style={{ top: 2 }} name="sad-outline" size={22} color="#626262" />
-                                <Text style={{ top: 4, left: 3, color: "#626262" }}>{disappointed} Disappointed </Text>
+                                <Ionicons style={{ top: 2 }} name="happy-sharp" size={22} color= {post.is_felt ? "#6BB7EC" : "#626262"} />
+                                <Pressable onLongPress={toggleModal}>
+                                    <Text style={{ top: 4, left: 3, color: "#626262" }}> Kudos </Text>
+                                </Pressable>
+                                <Modal visible={isModalVisible}>
+                                    <View>
+                                        <Text>Chọn lựa chọn của bạn:</Text>
+                                        <TouchableOpacity onPress={() => handleFeel(isModalVisible,post.is_felt, 1)}>
+                                            <Text>kudos</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => handleFeel(isModalVisible,post.is_felt, 0)}>
+                                            <Text>dissapointed</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={toggleModal}>
+                                            <Text>Hủy</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </Modal>
+
+
                             </View>
                             <TouchableOpacity activeOpacity={.75} style={{ flexDirection: "row", }} onPress={() => setShowComment(true)}>
                                 <Ionicons style={{ top: 2 }} name="chatbox-outline" size={22} color="#626262" />
-                                <Text style={{ top: 4, left: 3, color: "#626262" }}>Mark</Text>
+                                <Text style={{ top: 4, left: 3, color: "#626262" }}> Mark</Text>
                             </TouchableOpacity>
                             <TouchableOpacity activeOpacity={.75} style={{ flexDirection: "row", }}>
                                 <Ionicons style={{ top: 2 }} name="share-social-outline" size={22} color="#626262" />
