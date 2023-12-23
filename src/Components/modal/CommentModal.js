@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Alert, StyleSheet, Text, Button, View, TextInput, TouchableOpacity, Image, ScrollView, FlatList } from "react-native";
+import { Alert, StyleSheet, Text, Button, View, TextInput, TouchableOpacity, Image, ScrollView, FlatList,KeyboardAvoidingView, endScroll  } from "react-native";
 import Modal from "react-native-modal";
 import { AntDesign } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import NetInfo from "@react-native-community/netinfo";
-import { getTextWithIcon, getTimeUpdateCommentFromUnixTime } from '../../Services/Helper/common';
+import { getTextWithIcon} from '../../Services/Helper/common';
 //import {Picker} from "@react-native-picker/picker";
 
 import { Audio } from "expo-av";
@@ -13,10 +13,10 @@ import axios from "../../setups/custom_axios";
 import { _getCache } from "../../Services/Helper/common";
 import { Paragraph } from "react-native-paper";
 import ViewWithIcon from "../ViewWithIcon";
-
+import { formatTimeDifference } from '../../Services/Helper/common';
 //đây là mỗi phần tử comment, có urlImage, ten và textComment, time
 function ComponentComment(props) {
-
+    console.log("props: ", props)
     return (
         <View style={styles.commentContainer}>
             <Image
@@ -26,9 +26,9 @@ function ComponentComment(props) {
                 }}
             />
 
-            <View >
+            <View>
                 {/* //comment text */}
-                <View style={styles.commentComponent}>
+                <View style={[styles.commentComponent, { marginTop: 0 }]}>
                     <Text style={{ fontWeight: 'bold', fontSize: 17 }}>{props?.name}</Text>
                     <View>
                         <ViewWithIcon value={props?.textComment}
@@ -38,17 +38,25 @@ function ComponentComment(props) {
 
                 </View>
 
-                {/* //time+like+réponse */}
+                {/* //time+like+response */}
                 <View style={{ flexDirection: 'row', marginLeft: 15 }}>
-                    <Text style={{ fontWeight: 'bold', fontSize: 15, color: '#656766', marginRight: 13 }}>{props?.time}</Text>
+                    <Text style={{ fontSize: 13, color: '#656766', marginRight: 13 }}>{props?.time}</Text>
                     <Text style={{ fontWeight: 'bold', fontSize: 15, color: '#656766', marginRight: 13 }}>Thích</Text>
-                    <Text style={{ fontWeight: 'bold', fontSize: 15, color: '#656766' }}>Phản hồi</Text>
+                    <TouchableOpacity>
+                        <Text style={{ fontWeight: 'bold', fontSize: 15, color: '#656766' }}> 
+                            Phản hồi
+                        </Text>
+                    </TouchableOpacity>
 
                     {/* số like comment */}
 
                     <Text style={{ fontWeight: 'bold', fontSize: 15, color: '#656766', marginLeft: 20, marginRight: 2 }}>1</Text>
-                    <View style={{ width: 16, height: 16, backgroundColor: 'red', marginTop: 2, borderRadius: 20, paddingTop: 1, alignItems: 'center' }}>
-                        <Ionicons style={{}} name="heart" size={12} color="white" />
+                    <View style={{ width: 16, height: 16, marginTop: 2, borderRadius: 20, paddingTop: 1, alignItems: 'center' }}>
+                        <Ionicons style={{}} name="happy-outline" size={15} color="#626262" />
+                    </View>
+                    <Text style={{ fontWeight: 'bold', fontSize: 15, color: '#656766', marginLeft: 20, marginRight: 2 }}>1</Text>
+                    <View style={{ width: 16, height: 16, marginTop: 2, borderRadius: 20, paddingTop: 1, alignItems: 'center' }}>
+                        <Ionicons style={{}} name="sad-outline" size={15} color="#626262" />
                     </View>
 
 
@@ -84,11 +92,11 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
     const [like, setLike] = useState("like2");
     const [comments, setComments] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const index = useRef(10);
+    const index = useRef(0);
     //goi api lay ra thong tin cac comment cua bai viet co post_id
     const setComment = async (postId) => {
         const textCommentTmp = textComment + " ";
-        await axios.post(`/comment/set_comment?id=${postId}&comment=${getTextWithIcon(textCommentTmp)}&index=0&count=10`);
+        await axios.post(`/set_mark_comment?id=${postId}&content=${getTextWithIcon(textCommentTmp)}&index=0&count=10`);
         setTextComment("");
         getComment(postId);
         postUpdated();
@@ -96,11 +104,53 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
     const getComment = async (postId) => {
         if (isLoading) return;
         setIsLoading(true);
-        const listComment = await axios.post(`/comment/get_comment?id=${postId}&index=0&count=${index.current}`);
+        const listComment = await axios.post(
+            '/get_mark_comment',
+            {
+                id: postId,
+                index: 0,
+                count: index.current
+            });
+        console.log("______________________________________")
+        console.log("postId:", postId)
+        console.log("comment: ", listComment)
+        console.log("______________________________________")
         setComments(listComment.data);
         setIsLoading(false);
 
     }
+
+
+    const handleCommentSubmit = async () => {
+        Alert.alert(
+        'Gán Marks cho bình luận này:',
+        [
+            {
+            text: 'Trust',
+            onPress: () => {
+                // Xử lý trường hợp 1
+                console.log('Trust được chọn');
+                setComment(postId);
+                setTextComment('');
+            },
+            },
+            {
+            text: 'Fake',
+            onPress: () => {
+                // Xử lý trường hợp 2
+                console.log('Fake được chọn');
+                // Thêm xử lý cho trường hợp 2 nếu cần
+            },
+            },
+            {
+            text: 'Hủy',
+            style: 'cancel',
+            },
+        ],
+        { cancelable: false }
+        );
+    }
+
     //hàm này gọi khi mở modal comment lên
     const onScreenLoad = async () => {
         await getComment(postId);
@@ -108,7 +158,6 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
     //hàm này gọi khi load tiep comment
     const onLoadComment = async () => {
         index.current = index.current + 10;
-        await getComment(postId);
     }
     const handleLikeSound = async () => {
         try {
@@ -173,7 +222,7 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
 
                         {/* thanh phù hợp nhất */}
                         <View style={styles.phuhopnhat}>
-                            <Text style={{ fontSize: 20, marginTop: -5 }}>Phù hợp nhất</Text>
+                            <Text style={{ fontSize: 20, marginTop: -5 }}> Tất cả marks</Text>
                             <Ionicons style={{ flex: 1, alignItems: "flex-end", border: 1 }} name="chevron-down-outline" size={23} color="black" onPress={() => console.log("Click like")} />
                         </View>
 
@@ -187,8 +236,13 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
                                 data={comments}
                                 renderItem={(data) => {
                                     const item = data.item;
-                                    if (item.is_blocked == 0)
-                                            return <ComponentComment time={getTimeUpdateCommentFromUnixTime(item.created)} urlImage={item.poster.avatar} key={data.index} name={item.poster.name} textComment={item.comment} />
+                                    console.log("DATA: ", data.item)
+                                    /*
+                                        *************************************
+                                        if người dùng hiện tại không chặn người đăng comment này
+                                        *************************************
+                                    */
+                                        return <ComponentComment time={formatTimeDifference(item.created)} urlImage={item.poster.avatar} key={data.index} name={item.poster.name} textComment={item.mark_content} />
                                 }}
                                 // Performance settings
                                 removeClippedSubviews={true} // Unmount components when outside of window 
@@ -196,8 +250,8 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
                                 maxToRenderPerBatch={1} // Reduce number in each render batch
                                 updateCellsBatchingPeriod={100} // Increase time between renders
                                 windowSize={7} // Reduce the window size
-                                onScrollBeginDrag={() => endScroll.current = false}
-                                onScrollEndDrag={() => endScroll.current = true}
+                                //onScrollBeginDrag={() => endScroll.current = false}
+                                //onScrollEndDrag={() => endScroll.current = true}
                                 onScroll={(e) => {
                                     //paddingToBottom += e.nativeEvent.layoutMeasurement.height;
                                     if (e.nativeEvent.contentOffset.y >= h) {
@@ -214,14 +268,21 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
 
                         {/* thanh viết bình luận */}
                         <View style={styles.binhluan}>
-                            <TextInput
-                                style={styles.input}
-                                onChangeText={(text) => { setTextComment(text); }}
-                                value={getTextWithIcon(textComment)}
-                                placeholder=" Viết bình luận..."
-                                keyboardType="default"
-                                onSubmitEditing={async () => { await setComment(postId); }}
-                            />
+                            <View style={styles.inputContainer}>
+                                <TextInput
+                                    style={styles.input}
+                                    onChangeText={(text) => { setTextComment(text); }}
+                                    value={getTextWithIcon(textComment)}
+                                    placeholder=" Viết bình luận..."
+                                    keyboardType="default"
+                                    onSubmitEditing={async () => { await setComment(postId); }}
+                                />
+                                {textComment.trim() !== '' && (
+                                    <TouchableOpacity style={styles.sendButton} onPress={handleCommentSubmit}>
+                                        <Ionicons name="send" size={25} color="#007BFF" />
+                                    </TouchableOpacity>
+                                )}
+                            </View>
                         </View>
                     </View>
                 </View>
@@ -291,13 +352,22 @@ const styles = StyleSheet.create({
         borderTopWidth: 1.5,
         borderTopColor: '#d2d2d2'
     },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 5,
+    },
     input: {
         fontSize: 22,
-        height: '80%',
+        height: 50,
         backgroundColor: '#f1f2f4',
-        marginTop: 5,
         borderRadius: 25,
-        paddingLeft: 10
+        paddingLeft: 10,
+        flex: 9, // Chiếm 80% chiều rộng
+    },
+    sendButton: {
+        marginLeft: 10,
+        flex: 1, // Chiếm 20% chiều rộng
     },
     touchable: {
         flexDirection: "row",

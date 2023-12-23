@@ -4,7 +4,7 @@ import { _getCache, _setCache } from "../Helper/common";
 import postService from "./postService";
 const login = async (email, password) => {
   console.log(password, email);
-  return axios.post(
+  return await axios.post(
     '/login',
     {
       email: email,
@@ -13,26 +13,26 @@ const login = async (email, password) => {
     }
   );
 };
-const signup = async (email, password, name, birthday,) => {
+const signup = async (email, password, name, birthday) => {
   console.log(password, email, name, birthday);
-  return axios.post(
+  return await axios.post(
     '/signup',
     {
       email: email,
       password: password,
-      name: name,
-      birthday: Date(birthday),
+      uuid: "string"
+      //birthday: Date(birthday),
     }
   );
 };
 const changePassword = async (password, newPassword) => {
-  return axios.post(`/change_password?password=${password}&new_password=${newPassword}`);
+  return await axios.post(`/change_password?password=${password}&new_password=${newPassword}`);
 }
 
 const checkExistEmail = async (email) => {
   console.log(email);
-  return axios.post(
-    '/checkexistemail',
+  return await axios.post(
+    '/check_email',
     {
       email: email,
     }
@@ -41,7 +41,7 @@ const checkExistEmail = async (email) => {
 
 const checkVerifyCode = async (email, code) => {
   console.log(email, code);
-  return axios.post(
+  return await axios.post(
     '/check_verify_code',
     {
       email: email,
@@ -51,7 +51,7 @@ const checkVerifyCode = async (email, code) => {
 }
 const getVerifyCode = async (email) => {
   console.log(email);
-  return axios.post(
+  return await axios.post(
     '/get_verify_code',
     {
       email: email,
@@ -59,7 +59,7 @@ const getVerifyCode = async (email) => {
   );
 }
 const verifyToken = async () => {
-  return axios.get(`/verifyToken`);
+  return await axios.get(`/verifyToken`);
 }
 const logout = async () => {
   // remove token

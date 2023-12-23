@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setNewData } from "../Redux/emojiSlice";
 import { setImage, setVideo, setVideoSize, setAsset } from "../Redux/emojiSlice";
 
+
 export default function ImageLibrary({ navigation }) {
   const dispatch = useDispatch();
   const post = useSelector((state) => state.emoji);
@@ -45,7 +46,7 @@ export default function ImageLibrary({ navigation }) {
               } else {
 
                 let image = [];
-                assets.map(item => { image.push({ filename: item.filename, uri: item.uri, type: 'image/' + getType(item.filename) }) })
+                assets.map(item => {image.push({ filename: item.filename, uri: item.uri, type: 'image/' + getType(item.filename) }) })
                 dispatch(setNewData(image));
                 dispatch(setAsset(assets));
                 dispatch(setImage());

@@ -48,6 +48,31 @@ export const getTimeUpdatePostFromUnixTime = (unix) => {
         d.getFullYear() : ""}`;
     return datestring;
 }
+export function formatTimeDifference(date) {
+    const currentDate = new Date();
+    const timestampDate = new Date(date);
+
+    // Tính khoảng cách thời gian
+    const timeDifference = currentDate - timestampDate;
+    const hoursDifference = timeDifference / (1000 * 60 * 60);
+    const minutesDifference = timeDifference / (1000 * 60);
+    const secondsDifference = timeDifference / 1000;
+
+    if (hoursDifference >= 24) {
+        // Nếu thời gian đã trôi qua hơn hoặc bằng 24 giờ, hiển thị ngày
+        const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+        return timestampDate.toLocaleDateString(undefined, options);
+    } else if (hoursDifference >= 1) {
+        // Nếu thời gian đã trôi qua hơn hoặc bằng 1 giờ, hiển thị giờ
+        return `${Math.floor(hoursDifference)} giờ trước`;
+    } else if (minutesDifference >= 1) {
+        // Nếu thời gian đã trôi qua hơn hoặc bằng 1 phút, hiển thị phút
+        return `${Math.floor(minutesDifference)} phút trước`;
+    } else {
+        // Nếu thời gian chưa trôi qua 1 phút, hiển thị giây
+        return `${Math.floor(secondsDifference)} giây trước`;
+    }
+}
 export const getTimeSendRequestFriend = (unix) => {
     const today = new Date();
     const before = today.getTime() / 1000 - unix;

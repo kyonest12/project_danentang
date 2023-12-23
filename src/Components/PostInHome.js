@@ -18,7 +18,6 @@ import {
 } from '../Services/Helper/common';
 import { Ionicons, Entypo, MaterialIcons, AntDesign } from '@expo/vector-icons';
 import { Avatar, Button, Card, Title, Paragraph } from 'react-native-paper';
-import { getTimeUpdatePostFromUnixTime } from '../Services/Helper/common';
 import postService from '../Services/Api/postService';
 import CenterModal from './modal/CenterModal';
 import DetailPostModal from './modal/DetailPostModal';
@@ -33,6 +32,7 @@ import ReportModal from './modal/ReportModal';
 import { Audio } from 'expo-av';
 import { resetEmojiSlice, setUserID } from '../Redux/emojiSlice';
 import moment from 'moment';
+import { formatTimeDifference } from '../Services/Helper/common';
 function PostInHome({ navigation, postData, userID, avatar }) {
     const dispatch = useDispatch();
     const [showComment, setShowComment] = useState(false);
@@ -47,6 +47,12 @@ function PostInHome({ navigation, postData, userID, avatar }) {
     const [videoDimension, setVideoDimension] = useState({ width: 0, height: 0 });
     const widthLayout = Dimensions.get('window').width;
     const heightLayout = Dimensions.get('window').height;
+    
+    const [kudos, setKudos] = useState(0);
+    const [disappointed, setDisappointed] = useState(0);
+    const [trust, setTrust] = useState(0);
+    const [fake, setFake] = useState(0);
+
     const { user } = useSelector(
         (state) => state.auth
     );
@@ -56,6 +62,16 @@ function PostInHome({ navigation, postData, userID, avatar }) {
             await postService.updateListPostsCache([result.data]);
         }).catch((e) => {
             console.log(e);
+        })
+
+        postService.getNumFeel(post.id).then(async (result) => {
+            setKudos(result.data.kudos);
+            setDisappointed(result.data.dissapointed);
+        })
+
+        postService.getNumMark(post.id).then(async (result) => {
+            setTrust(result.data.trust);
+            setFake(result.data.fake);
         })
     }
     const LeftContent = () => {
@@ -84,9 +100,9 @@ function PostInHome({ navigation, postData, userID, avatar }) {
             </TouchableOpacity>
         </View>
     }
-    const handleLikePost = () => {
+    const handleCommentPost = () => {
         // call api like post
-        postService.likePost(post?.id).then((data) => {
+        postService.setMarkComment(post?.id, content, type).then((data) => {
             postUpdated();
         }).catch((e) => {
             console.log(e);
@@ -102,11 +118,19 @@ function PostInHome({ navigation, postData, userID, avatar }) {
         }
     }
     const uriEmoji = () => {
-        return data.find(x => x.name === (post?.state)).img;
+        emo = data.find(x => x.name === (post?.state))
+        if (emo)
+            return data.find(x => x.name === (post?.state)).img;
+        else
+            return null
     }
     useEffect(() => {
         setPost(postData);
-        console.log("_______________________________", post.created)
+        setKudos(kudos);
+        setDisappointed(disappointed);
+        setTrust(trust);
+        setFake(fake);
+        console.log("_______________________________", post)
     }, [postData])
     return (
         <View style={{ flex: 1, marginTop: 10 }}>
@@ -114,7 +138,7 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                 navigation={navigation}
                 postData={post} viewImage={(index) => {
                     setViewImage(true);
-                    setIndexViewImage(index);
+                    setIndexViewImage(index);   
                 }
                 } />}
             {isShowDetailPost && post?.image && post?.image?.length === 1 && <PostModalOneImage callBackPostUpdated={() => postUpdated()} onClose={() => setIsShowDetailPost(false)}
@@ -144,10 +168,9 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                             }}>
                                 <Text style={{ width: 200 }}>
                                     <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{post?.author?.name + ' '}</Text>
-                                    
-                                    {post?.state && <Text style={{ fontWeight: 'normal', fontSize: 15 }}>
-                                        {` đang cảm thấy ${post?.state}`}
-                                    </Text>}
+                                        {post?.state && <Text style={{ fontWeight: 'normal', fontSize: 15 }}>
+                                            {` đang cảm thấy ${post?.state}`}
+                                        </Text>}
                                 </Text>
                             </TouchableOpacity>
                         </Text>
@@ -157,7 +180,7 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                     subtitle={
                         <Text>
                             <View style={{ flexDirection: 'row' }}>
-                                <Text style={{ fontSize: 12, color: '#606060' }}>{moment(post?.created).format('YYYY-MM-DD HH:mm')}</Text>
+                                <Text style={{ fontSize: 12, color: '#606060' }}>{formatTimeDifference(post?.created)}</Text>
                                 <Text style={{ fontSize: 10, marginHorizontal: 2, top: 1, color: '#606060' }}>{" • "}</Text>
                                 <Image style={{ width: 12, height: 12, top: 2, opacity: 0.6 }} source={require('../../assets/icons/public-icon-facebook.png')} />
                             </View>
@@ -187,34 +210,40 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                         setIsShowDetailPost(true);
                     }}
                 >
-                    {post?.image && post?.image?.length > 0 &&
-                        <View style={{ height: widthLayout - 40, width: '100%', flexDirection: 'row' }}>
-                            {post?.image[0]?.url
-                                && <View style={{ flex: 1, paddingRight: post?.image[1]?.url ? 2 : 0 }}>
-                                    <Image style={{ width: '100%', height: '100%' }} source={{ uri: post?.image[0]?.url }} />
-                                </View>
-                            }
-                            {post?.image[1]?.url && <View style={{ flex: 1, flexDirection: 'column', paddingLeft: 2 }}>
-                                <View style={{ flex: 1, paddingBottom: post?.image[2]?.url ? 2 : 0 }}>
-                                    <Image style={{ width: '100%', height: '100%' }} source={{ uri: post?.image[1]?.url }} />
-                                </View>
-
-                                {post?.image[2]?.url &&
-                                    <View style={{ flex: 1, paddingTop: 2 }}>
-                                        <Image style={{ width: '100%', height: '100%' }} source={{ uri: post?.image[2]?.url }} />
-                                        {post?.image[3]?.url && <View style={{
-                                            width: '100%', height: '100%', position: 'absolute',
-                                            justifyContent: 'center', alignItems: 'center',
-                                            backgroundColor: 'black', top: 2, opacity: 0.5
-                                        }}>
-                                            <Text style={{ color: 'white', fontSize: 30 }}>+1</Text>
-                                        </View>}
+                    {post?.image && post?.image.length > 0 &&
+                            <View style={{ height: widthLayout - 40, width: '100%', flexDirection: 'row' }}>
+                            {post?.image.map((image, index) => (
+                                <View
+                                    key={index}
+                                    style={{
+                                    flex: 1,
+                                    paddingRight: index < post.image.length - 1 ? 2 : 0,
+                                    flexDirection: 'column',
+                                    }}
+                                >
+                                    <Image style={{ flex: 1, width: '100%', height: '100%' }} source={{ uri: image.url }} />
+                                    {index === post.image.length - 1 && post.image.length > 1 && (
+                                    <View
+                                        style={{
+                                        flex: 1,
+                                        position: 'absolute',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        backgroundColor: 'black',
+                                        top: 0,
+                                        bottom: 0,
+                                        left: 0,
+                                        right: 0,
+                                        opacity: 0.5,
+                                        }}
+                                    >
+                                        <Text style={{ color: 'white', fontSize: 30 }}>+{post.image.length - 1}</Text>
                                     </View>
-                                }
-                            </View>
-                            }
+                                    )}
+                                </View>
+                            ))}
                         </View>
-                    }
+                        }
                 </TouchableOpacity>
                 <Card.Actions>
                     <View style={{ flexDirection: 'column', flex: 1 }}>
@@ -227,15 +256,9 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                         }}>
 
                             <View style={{ flexDirection: "row", }}>
-                                <AntDesign name="like1" size={10} color="white" style={{ top: 1, padding: 4, borderRadius: 10, backgroundColor: COMMON_COLOR.LIKE_BLUE_COLOR }} />
-                                <Text style={{ left: 5, color: "#626262" }}>
-                                    {+post?.is_liked === 1 ? `Bạn ${post?.like - 1 > 0 ? `và ${converNumberLikeAndComment(post?.like - 1)} người khác` : ''}` : converNumberLikeAndComment(post?.like)}
-                                </Text>
+                                <Text style={{ color: "#626262" }}>{trust} Trust </Text>
+                                <Text style={{ color: "#626262" }}>{fake} Fake </Text>
                             </View>
-
-                            <TouchableOpacity style={{ flexDirection: "row", }}>
-                                <Text style={{ color: "#626262" }}>{post?.comment} bình luận</Text>
-                            </TouchableOpacity>
 
                         </View>
                         <View style={{ height: 1, backgroundColor: '#e7e7e7', marginVertical: 15, marginHorizontal: 5 }} />
@@ -246,13 +269,17 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                             flexDirection: "row",
                             justifyContent: "space-between",
                         }}>
-                            <TouchableOpacity activeOpacity={.75} style={{ flexDirection: "row", }} onPress={() => { handleLikePost(); console.log("seemore", seemore); handleLikeSound() }}>
-                                <AntDesign name={+post?.is_liked === 1 ? 'like1' : 'like2'} size={22} color={+post?.is_liked === 1 ? COMMON_COLOR.LIKE_BLUE_COLOR : '#626262'} />
-                                <Text style={{ top: 4, left: 3, color: "#626262" }}>Thích</Text>
-                            </TouchableOpacity>
+                            <View activeOpacity={.75} style={{ flexDirection: "row", }}>
+                                <Ionicons style={{ top: 2 }} name="happy-outline" size={22} color="#626262" />
+                                <Text style={{ top: 4, left: 3, color: "#626262" }}>{kudos} Kudos </Text>
+                            </View>
+                            <View activeOpacity={.75} style={{ flexDirection: "row", }}>
+                                <Ionicons style={{ top: 2 }} name="sad-outline" size={22} color="#626262" />
+                                <Text style={{ top: 4, left: 3, color: "#626262" }}>{disappointed} Disappointed </Text>
+                            </View>
                             <TouchableOpacity activeOpacity={.75} style={{ flexDirection: "row", }} onPress={() => setShowComment(true)}>
-                                <Ionicons style={{ top: 3 }} name="chatbox-outline" size={22} color="#626262" />
-                                <Text style={{ top: 4, left: 3, color: "#626262" }}>Bình luận</Text>
+                                <Ionicons style={{ top: 2 }} name="chatbox-outline" size={22} color="#626262" />
+                                <Text style={{ top: 4, left: 3, color: "#626262" }}>Mark</Text>
                             </TouchableOpacity>
                             <TouchableOpacity activeOpacity={.75} style={{ flexDirection: "row", }}>
                                 <Ionicons style={{ top: 2 }} name="share-social-outline" size={22} color="#626262" />

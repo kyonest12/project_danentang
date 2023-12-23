@@ -2,25 +2,30 @@ import data from "../../Screens/img/emoji";
 import axios from "../../setups/custom_axios";
 import { deepCopy, _getCache, _setCache } from "../Helper/common";
 
-const createPost = async (data) => {
-  const { described, status, formData, isMedia, videoWidth, videoHeight } = data;
-  console.log("___________________________________________________", videoHeight, videoWidth)
-  const requestBody = new FormData();
-  requestBody.append('described', described);
-  requestBody.append('status', status);
-
-  if (isMedia) {
-    requestBody.append('image', videoWidth);
-    requestBody.append('video', videoHeight);
-    requestBody.append('media', formData);
-  }
-
-  return await axios.post('/add_post', requestBody, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+const createPost = (data) => {
+  const { described, status, formData, isMedia } = data;
+  formData.append('described', described);
+  formData.append('status', status);
+  return axios.post(`/add_post`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
+
+const getNumMark = async (postId) => {
+  return await axios.post(
+    '/get_num_mark',
+    {
+      id: postId
+    }
+  );
+}
+
+const getNumFeel = async (postId) => {
+  return await axios.post(
+    '/get_num_feel',
+    {
+      id: postId
+    }
+  );
+}
 
 const getListPosts = async (lastId, index, count) => {
   return await axios.post(
@@ -73,6 +78,27 @@ const reportPost = (data) => {
 const getListPostByUserId = (userId) => {
   return axios.post(`get_post_by_userId?userId=${userId}`);
 }
+const setMarkComment = async (postId, content, type) => {
+  return axios.post(
+    '/set_mark_comment', 
+    {
+      id : postId,
+      content: content,
+      index: 0,
+      count: 0,
+      type: type
+    });
+}
+const getMarkComment = async (postId, index, count) => {
+  return axios.post(
+    'get_mark_comment',
+    {
+      id: postId,
+      index: index,
+      count: count
+    }
+  )
+}
 const updateListPostsCache = async (newlistPosts) => {
   let listPosts = JSON.parse(await _getCache("listPosts"));
   // console.log('listPosts', listPosts);
@@ -107,7 +133,7 @@ const removePostsCache = async () => {
 const postService = {
   getListPosts,
   getListVideos,
-  likePost,
+  setMarkComment,
   getPost,
   updateListPostsCache,
   getListPostsCache,
@@ -117,5 +143,8 @@ const postService = {
   reportPost,
   editPost,
   deletePost,
+  getMarkComment,
+  getNumFeel,
+  getNumMark,
 };
 export default postService;
