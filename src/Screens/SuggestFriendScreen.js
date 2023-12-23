@@ -8,7 +8,8 @@ import {
     ScrollView,
     RefreshControl,
     Image,
-    Alert
+    Alert,
+    ActivityIndicator
 } from 'react-native';
 import { connect } from 'react-redux';
 import { useDispatch, useSelector } from "react-redux";
@@ -35,6 +36,7 @@ function SuggestFriendScreen({ route, navigation }) {
     const [listFriendTotal, setListFriendTotal] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [loadingScroll, setLoadingScroll] = useState(false);
     const onRefresh = async () => {
         setRefreshing(true);
         if (!isLoading) {
@@ -74,6 +76,21 @@ function SuggestFriendScreen({ route, navigation }) {
         console
         setListFriendTotal(listFriend);
     }, [listFriend]);
+    function handleScroll(){
+        setLoadingScroll(true);
+        userService.getSuggestFriends(listFriendTotal.length, defaultCount).then((result) => {
+            console.log(result);
+            //add to listFriendTotal
+            result.data.forEach((item) => {
+                listFriendTotal.push(item);
+            });
+            setLoadingScroll(false);
+        }).catch(e => {
+            setListFriend([])
+            console.log(e.response.data);
+            setLoadingScroll(false);
+        })
+    }
     return (
         <View style={{backgroundColor: 'white', flex: 1}}>
             <ScrollView showsVerticalScrollIndicator={false}
@@ -85,12 +102,11 @@ function SuggestFriendScreen({ route, navigation }) {
                         colors={["#0f80f7"]}
                     />}
                 onScroll={({ nativeEvent }) => {
-                    // if (isCloseToBottom(nativeEvent)) {
-                    //     // đã đến cuối trang -> gọi api lấy bài tiếp theo
-                    //     // khi không load nữa
-                    //     if (!isLoading)
-                    //         handleGetListRequest(defaultIndex.current, defaultCount);
-                    // }
+                    if (isCloseToBottom(nativeEvent)) {
+                        // đã đến cuối trang -> gọi api lấy bài tiếp theo
+                        // khi không load nữa
+                        handleScroll();
+                    }
                 }}
                 scrollEventThrottle={400} // kich hoat onScroll trong khung hinh co do dai 400
             >
@@ -111,6 +127,11 @@ function SuggestFriendScreen({ route, navigation }) {
                                     <SuggestFriend navigation={navigation} data={item} updateListFriends={() => handleGetListRequest()} />
                                 </View>
                             })}
+                        </View>
+                        <View style={{marginVertical: '50'}}>
+                            {
+                                loadingScroll && (<ActivityIndicator size={50} color="#0000ff" />)
+                            }
                         </View>
                     </View>
                 </View>
