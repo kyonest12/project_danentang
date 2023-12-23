@@ -22,8 +22,9 @@ import { useNetInfo } from '@react-native-community/netinfo';
 import userService from '../Services/Api/userService';
 import { delay, getTimeSendRequestFriend } from '../Services/Helper/common';
 import MyFriend from '../Components/MyFriend';
+import SuggestFriend from '../Components/SuggestFriend';
 function SuggestFriendScreen({ route, navigation }) {
-    const defaultCount = 5;
+    const defaultCount = 8;
     const defaultIndex = useRef(0);
     const dispatch = useDispatch();
     const netInfo = useNetInfo();
@@ -107,7 +108,7 @@ function SuggestFriendScreen({ route, navigation }) {
                             {listFriendTotal?.map((item, index) => {
                                 if (item.id === user.id) return <></>
                                 return <View key={index} >
-                                    <MyFriend navigation={navigation} data={item} updateListFriends={() => handleGetListRequest()} />
+                                    <SuggestFriend navigation={navigation} data={item} updateListFriends={() => handleGetListRequest()} />
                                 </View>
                             })}
                         </View>
