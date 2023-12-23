@@ -139,7 +139,7 @@ const removePostsCache = async () => {
 }
 
 const getNoti = async(index, count) => {
-  return axios.post(
+  return await axios.post(
     '/get_notification',
     {
       index: index,

@@ -103,8 +103,6 @@ function SuggestFriendScreen({ route, navigation }) {
                     />}
                 onScroll={({ nativeEvent }) => {
                     if (isCloseToBottom(nativeEvent)) {
-                        // đã đến cuối trang -> gọi api lấy bài tiếp theo
-                        // khi không load nữa
                         handleScroll();
                     }
                 }}
