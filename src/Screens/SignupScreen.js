@@ -239,6 +239,7 @@ export default function SignupScreen({ navigation }) {
         authService.checkVerifyCode(email, verifyCode).then(() => {
             validate.current.verifyCode.exactly = true;
             validate.current.verifyCode.errorName = '';
+            // dispatch(login({email: email, password: password}));
             handleNextStep();
         }).catch(e => {
             console.log(e);
@@ -309,6 +310,18 @@ export default function SignupScreen({ navigation }) {
         );
         return () => backHandler.remove();
     }, [stepIndex]);
+
+    const changeInforAfterSignup = async() => {
+        await dispatch(login({ email: email, password: password }));
+        userService.changeInforAfterSignup(firstName.trim() + ' ' + lastName.trim(), "").then((res) => {
+            console.log('res after signup: ', res);
+            dispatch(login({ email: email, password: password }));
+        }).then((e) => {
+            console.log(e.response);
+        })
+        dispatch(changeLoginWithCache(false))
+    }
+
     return <View style={styles.container}>
         {
             stepIndex === 0
@@ -499,12 +512,7 @@ export default function SignupScreen({ navigation }) {
                                                     uppercase={false}
                                                     color={COMMON_COLOR.BLUE_COLOR}
                                                     style={{ marginTop: 50, width: '70%' }}
-                                                    onPress={() => {
-                                                        userService.changeInforAfterSignup(firstName.trim() + ' ' + lastName.trim(), "")
-                                                        dispatch(login({ email: email, password: password }));
-                                                        dispatch(changeLoginWithCache(false))
-                                                    }
-                                                    }
+                                                    onPress={() => changeInforAfterSignup()}
                                                 />
                                             </View>
                                             : <></>

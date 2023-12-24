@@ -16,12 +16,14 @@ const getUserInfor = (user_id) => {
 }
 
 const changeInforAfterSignup = async (name, avatar) => {
+  console.log(name, avatar);
+  let formData = new FormData();
+  formData.append("username", name);
+  formData.append("avatar", avatar);
   return await axios.post(
     '/change_profile_after_signup',
-    {
-      username : name,
-      avatar : avatar
-    }
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
   )
 }
 
