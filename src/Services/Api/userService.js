@@ -85,7 +85,9 @@ const setBlock = (userId, type) => {
 const unFriend = (userId) => {
   return axios.post(`/unfriend?user_id=${userId}`);
 }
-
+const delRequestFriend = (userId) => {
+  return axios.post(`/unfriend?user_id=${userId}`);
+}
 const getUserInforWithToken = (userId, token) =>  {
   return axios.post(`/get_user_info?user_id=${userId}&token=${token}`);
 }
@@ -106,7 +108,8 @@ const userService = {
   setUserCity,
   setUserCountry,
   getUserInforWithToken,
-  changeInforAfterSignup
+  changeInforAfterSignup,
+  delRequestFriend
 };
 
 

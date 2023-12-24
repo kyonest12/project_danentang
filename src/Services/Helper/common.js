@@ -73,6 +73,40 @@ export function formatTimeDifference(date) {
         return `${Math.floor(secondsDifference)} giây trước`;
     }
 }
+export function notiTimeDifference(date) {
+    const currentDate = new Date();
+    const timestampDate = new Date(date);
+  
+    const timeDifference = currentDate - timestampDate;
+    const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+    const weeksDifference = daysDifference / 7;
+    const monthsDifference = currentDate.getMonth() - timestampDate.getMonth() + (currentDate.getFullYear() - timestampDate.getFullYear()) * 12;
+    const yearsDifference = currentDate.getFullYear() - timestampDate.getFullYear();
+  
+    if (yearsDifference >= 1) {
+      return `${Math.floor(yearsDifference)} năm trước`;
+    } else if (monthsDifference >= 1) {
+      return `${Math.floor(monthsDifference)} tháng trước`;
+    } else if (weeksDifference >= 1) {
+      return `${Math.floor(weeksDifference)} tuần trước`;
+    } else if (daysDifference >= 1) {
+      return `${Math.floor(daysDifference)} ngày trước`;
+    } else {
+      // Nếu thời gian chưa trôi qua 1 ngày, bạn có thể thực hiện xử lý khác tùy thuộc vào yêu cầu của bạn
+      const hoursDifference = timeDifference / (1000 * 60 * 60);
+      const minutesDifference = timeDifference / (1000 * 60);
+      const secondsDifference = timeDifference / 1000;
+  
+      if (hoursDifference >= 1) {
+        return `${Math.floor(hoursDifference)} giờ trước`;
+      } else if (minutesDifference >= 1) {
+        return `${Math.floor(minutesDifference)} phút trước`;
+      } else {
+        return `${Math.floor(secondsDifference)} giây trước`;
+      }
+    }
+  }
+  
 export const getTimeSendRequestFriend = (unix) => {
     const today = new Date();
     const before = today.getTime() / 1000 - unix;

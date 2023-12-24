@@ -1,160 +1,135 @@
-import React, { useEffect, useState, memo } from 'react';
+import React, { useEffect, useState, memo, useRef } from 'react';
+import { useNetInfo } from '@react-native-community/netinfo';
 import {
     StyleSheet,
     Text,
     TouchableOpacity,
     View, Image, FlatList,
+    ScrollView,
+    RefreshControl,
+    Alert,
+    ActivityIndicator
 } from 'react-native';
-import { connect } from 'react-redux';
 import { useDispatch, useSelector } from "react-redux";
+import { connect } from 'react-redux';
 import {
     _getCache,
     _setCache
 } from '../Services/Helper/common';
+import userService from '../Services/Api/userService';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
-function NotificationScreen() {
-    const { userList, isLoading } = useSelector(
-        (state) => state.user
+import postService from '../Services/Api/postService';
+import Notifications from '../Components/Notifications';
+function NotificationScreen(navigation) {
+    const defaultCount = 8;
+    const defaultIndex = useRef(0);
+    const dispatch = useDispatch();
+    const netInfo = useNetInfo();
+    const { user } = useSelector(
+        (state) => state.auth
     );
-    const data = [
-        {
-            avatar: "https://th.bing.com/th/id/OIP.2dQpX0AKTNAGoT95HjWNNAHaDy?pid=ImgDet&rs=1",
-            name: "Hưng Nguyễn",
-            text: "đã bày tỏ cảm xúc về bài viết của bạn: Hello =))",
-            time: "13 thg 11 lúc 22:27",
-            backgroundColor: 'rgb(231,243,255)',
-            index: 0
-        },
-        {
-            avatar: "https://th.bing.com/th/id/OIP.2dQpX0AKTNAGoT95HjWNNAHaDy?pid=ImgDet&rs=1",
-            name: "Hưng Nguyễn",
-            text: "đã bày tỏ cảm xúc về bài viết của bạn: Hello =))",
-            time: "13 thg 11 lúc 22:27",
-            backgroundColor: 'rgb(231,243,255)',
-            index: 1
-        },
-        {
-            avatar: "https://th.bing.com/th/id/OIP.2dQpX0AKTNAGoT95HjWNNAHaDy?pid=ImgDet&rs=1",
-            name: "Hưng Nguyễn",
-            text: "đã bày tỏ cảm xúc về bài viết của bạn: Hello =))",
-            time: "13 thg 11 lúc 22:27",
-            backgroundColor: 'rgb(231,243,255)',
-            index: 2
-        },
-        {
-            avatar: "https://th.bing.com/th/id/OIP.2dQpX0AKTNAGoT95HjWNNAHaDy?pid=ImgDet&rs=1",
-            name: "Hưng Nguyễn",
-            text: "đã bày tỏ cảm xúc về bài viết của bạn: Hello =))",
-            time: "13 thg 11 lúc 22:27",
-            backgroundColor: 'rgb(231,243,255)',
-            index: 3
-        },
-        {
-            avatar: "https://th.bing.com/th/id/OIP.2dQpX0AKTNAGoT95HjWNNAHaDy?pid=ImgDet&rs=1",
-            name: "Hưng Nguyễn",
-            text: "đã bày tỏ cảm xúc về bài viết của bạn: Hello =))",
-            time: "13 thg 11 lúc 22:27",
-            backgroundColor: 'rgb(231,243,255)',
-            index: 4
-        },
-        {
-            avatar: "https://th.bing.com/th/id/OIP.2dQpX0AKTNAGoT95HjWNNAHaDy?pid=ImgDet&rs=1",
-            name: "Hưng Nguyễn",
-            text: "đã bày tỏ cảm xúc về bài viết của bạn: Hello =))",
-            time: "13 thg 11 lúc 22:27",
-            backgroundColor: 'rgb(231,243,255)',
-            index: 5
-        },
-        {
-            avatar: "https://th.bing.com/th/id/OIP.2dQpX0AKTNAGoT95HjWNNAHaDy?pid=ImgDet&rs=1",
-            name: "Hưng Nguyễn",
-            text: "đã bày tỏ cảm xúc về bài viết của bạn: Hello =))",
-            time: "13 thg 11 lúc 22:27",
-            backgroundColor: 'rgb(231,243,255)',
-            index: 6
-        },
-        {
-            avatar: "https://th.bing.com/th/id/OIP.2dQpX0AKTNAGoT95HjWNNAHaDy?pid=ImgDet&rs=1",
-            name: "Hưng Nguyễn",
-            text: "đã bày tỏ cảm xúc về bài viết của bạn: Hello =))",
-            time: "13 thg 11 lúc 22:27",
-            backgroundColor: 'rgb(231,243,255)',
-            index: 7
-        },
-        {
-            avatar: "https://th.bing.com/th/id/OIP.2dQpX0AKTNAGoT95HjWNNAHaDy?pid=ImgDet&rs=1",
-            name: "Hưng Nguyễn",
-            text: "đã bày tỏ cảm xúc về bài viết của bạn: Hello =))",
-            time: "13 thg 11 lúc 22:27",
-            backgroundColor: 'rgb(231,243,255)',
-            index: 8
-        },
-        {
-            avatar: "https://th.bing.com/th/id/OIP.2dQpX0AKTNAGoT95HjWNNAHaDy?pid=ImgDet&rs=1",
-            name: "Hưng Nguyễn",
-            text: "đã bày tỏ cảm xúc về bài viết của bạn: Hello =))",
-            time: "13 thg 11 lúc 22:27",
-            backgroundColor: 'rgb(231,243,255)',
-            index: 9
-        },
-    ];
+    const [listNoti, setListNoti] = useState([]);
+    const [listNotiTotal, setListNotiTotal] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [loadingScroll, setLoadingScroll] = useState(false);
+    const onRefresh = async () => {
+        setRefreshing(true);
+        if (!isLoading) {
+            if (netInfo.isConnected) {
+                handleGetListNoti();
+            }
+        }
+        setRefreshing(false);
+    };
+    const handleGetListNoti = () => {
+
+        //fix index to user's id
+
+        postService.getNoti("1", defaultCount).then((result) => {
+            console.log(result);
+            defaultIndex.current += defaultCount;
+            setListNoti(result.data)
+        }).catch(e => {
+            setListNoti([])
+            console.log(e.response.data);
+        })
+    }
+    const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+        const paddingToBottom = 50;
+        return layoutMeasurement.height + contentOffset.y >=
+            contentSize.height - paddingToBottom;
+    };
+
     useEffect(() => {
+        if (!isLoading) {
+            handleGetListNoti()
+        }
     }, []);
+    useEffect(() => {
+        let newList = listNotiTotal;
+        newList = newList.concat(listNoti);
+        // setListFriendTotal(newList);
+        console
+        setListNotiTotal(listNoti);
+    }, [listNoti]);
+    function handleScroll(){
+        setLoadingScroll(true);
+        postService.getNoti(listNotiTotal.length, defaultCount).then((result) => {
+            console.log(result);
+            //add to listFriendTotal
+            result.data.forEach((item) => {
+                listNotiTotal.push(item);
+            });
+            setLoadingScroll(false);
+        }).catch(e => {
+            setListNoti([])
+            console.log(e.response.data);
+            setLoadingScroll(false);
+        })
+    }
     return (
-        <View>
-            <FlatList data={data}
-                showsVerticalScrollIndicator={false}
+        <View style={{backgroundColor: 'white', flex: 1}}>
+            <ScrollView showsVerticalScrollIndicator={false}
                 showsHorizontalScrollIndicator={false}
-                renderItem={({ item }) => {
-                    if (item.index === 0) {
-                        return (
-                            <>
-                            <View style={{flexDirection: 'row', justifyContent: 'space-between', height: 90, padding: 20}}>
-                                <Text style={{fontSize: 20, fontWeight: 'bold'}}>Thông báo</Text>
-                                <View style={{backgroundColor: '#DCDCDC', borderRadius: 30, width: 30, height: 30, alignItems: 'center', justifyContent: 'center'}}>
-                                <FontAwesome name="search" size={22} color="black" />
-                                </View>
-                            </View>
-                                <TouchableOpacity>
-                                <View style={{ flexDirection: 'row', height: 90, justifyContent: 'space-between', backgroundColor: item.backgroundColor }}>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 10 }}>
-                                        <Image source={{ uri: item.avatar }} style={{ width: 50, height: 50, borderRadius: 50 }}></Image>
-                                        <View style={{ flexDirection: 'column', width: 270, marginLeft: 10 }}>
-                                            <Text>
-                                                <Text style={{ fontWeight: 'bold' }}>{item.name}</Text>
-                                                <Text>{" " + item.text}</Text>
-                                            </Text>
-                                            <Text style={{ color: 'gray' }}>{item.time}</Text>
-                                        </View>
-
-                                    </View>
-                                    <Entypo name="dots-three-horizontal" size={18} color="black" style={{ marginRight: 15, marginTop: 17 }} />
-                                </View>
-                                </TouchableOpacity>
-                            </>
-                        );
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        colors={["#0f80f7"]}
+                    />}
+                onScroll={({ nativeEvent }) => {
+                    if (isCloseToBottom(nativeEvent)) {
+                        handleScroll();
                     }
-                    return (
-                        <TouchableOpacity>
-                            <View style={{ flexDirection: 'row', height: 90, justifyContent: 'space-between', backgroundColor: item.backgroundColor }}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 10 }}>
-                                <Image source={{ uri: item.avatar }} style={{ width: 50, height: 50, borderRadius: 50 }}></Image>
-                                <View style={{ flexDirection: 'column', width: 270, marginLeft: 10 }}>
-                                    <Text>
-                                        <Text style={{ fontWeight: 'bold' }}>{item.name}</Text>
-                                        <Text>{" " + item.text}</Text>
-                                    </Text>
-                                    <Text style={{ color: 'gray' }}>{item.time}</Text>
+                }}
+                scrollEventThrottle={400}
+            >
+                <View style={{ backgroundColor: 'white', paddingHorizontal: 20 }}>
+                    <View>
+                        {!refreshing && <View style={{ flexDirection: 'row', marginVertical: 10 }}>
+                            {listNotiTotal.length > 0 ?
+                                <>
+                                    <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Thông báo</Text>
+                                </>
+                                : <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Không có thông báo</Text>
+                            }
+                        </View>}
+                        <View style={{ marginHorizontal: -5 }}>
+                            {listNotiTotal?.map((item, index) => {
+                                return <View key={index} >
+                                    <Notifications navigation={navigation} data={item} updateListNoti={() => handleGetListNoti()} />
                                 </View>
-
-                            </View>
-                            <Entypo name="dots-three-horizontal" size={18} color="black" style={{ marginRight: 15, marginTop: 17 }} />
+                            })}
                         </View>
-                        </TouchableOpacity>
-                    );
-                }}>
-
-            </FlatList>
+                        <View style={{marginVertical: '50'}}>
+                            {
+                                loadingScroll && (<ActivityIndicator size={50} color="#0000ff" />)
+                            }
+                        </View>
+                    </View>
+                </View>
+            </ScrollView>
         </View>
     );
 }
