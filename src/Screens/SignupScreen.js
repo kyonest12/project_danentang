@@ -500,8 +500,13 @@ export default function SignupScreen({ navigation }) {
                                                     color={COMMON_COLOR.BLUE_COLOR}
                                                     style={{ marginTop: 50, width: '70%' }}
                                                     onPress={() => {
-                                                        userService.changeInforAfterSignup(firstName.trim() + ' ' + lastName.trim(), "")
                                                         dispatch(login({ email: email, password: password }));
+                                                        userService.changeInforAfterSignup(firstName.trim() + ' ' + lastName.trim(), "").then((res) => {
+                                                            console.log('res after signup: ', res);
+                                                            dispatch(login({ email: email, password: password }));
+                                                        }).then((e) => {
+                                                            console.log(e.response);
+                                                        })
                                                         dispatch(changeLoginWithCache(false))
                                                     }
                                                     }
