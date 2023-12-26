@@ -79,8 +79,8 @@ const getUserFriends = (userId, index, count) => {
 const getSuggestFriends = (index, count) => {
   return axios.post(`/get_suggested_friends`, {index: index, count: count});
 }
-const setBlock = (userId, type) => {
-  return axios.post(`/set_block?user_id=${userId}&type=${type}`);
+const setBlock = (userId) => {
+  return axios.post(`/set_block`, {user_id: userId});
 }
 const unFriend = (userId) => {
   return axios.post(`/unfriend`, {user_id: userId});

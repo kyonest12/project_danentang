@@ -42,6 +42,7 @@ import NameSetting from './settings/NameSetting';
 import PasswordSetting from './settings/PasswordSetting';
 import EditAddress from './EditAddress';
 import EditCountry from './EditCountry';
+import ListBlock from './ListBlockScreen';
 const socket = io(`${CHAT_SERVER_URL}`);
 export default function AppNavigator() {
     const netInfo = useNetInfo();
@@ -88,6 +89,7 @@ export default function AppNavigator() {
                 <Stack.Screen name="editAddress" component={EditAddress} options={{ title: 'Thay đổi chi tiết địa chỉ' }} />
                 <Stack.Screen name="editCountry" component={EditCountry} options={{ title: 'Thay đổi chi tiết đất nước' }} />
                 <Stack.Screen name="allfriend" component={AllFriendScreen} />
+                <Stack.Screen name="listblock" component={ListBlock} options={{title: 'Danh sách đã chặn'}} />
                 <Stack.Screen name="anothervideo" component={AnotherVideoScreen} options={{ headerShown: false }} />
                 <Stack.Screen name="suggestfriend" component={SuggestFriendScreen} options={{ title: 'Gợi ý' }} />
                 <Stack.Screen name="search" component={SearchScreen} options={{ title: 'Tìm kiếm' }} />
