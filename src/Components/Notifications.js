@@ -53,8 +53,8 @@ export default function Notifications({ navigation, data, updateListNoti }) {
                     : { uri: notiData?.user.avatar }
         } style={{ width: 80, height: 80, borderRadius: 40, borderColor: COMMON_COLOR.GRAY_COLOR_BACKGROUND, borderWidth: 1 }} />
         <View style={styles.noti}> 
-            <Text> <Text style={{ fontWeight: 'bold' }}> {notiData?.user.username} </Text> {contentToRender} </Text>
-            <Text style={{ fontSize: 10 }}> {notiTimeDifference(notiData?.created)} </Text>
+            <Text><Text style={{ fontWeight: 'bold' }}> {notiData?.user.username}</Text> {contentToRender} </Text>
+            <Text style={{ fontSize: 10 }}>{notiTimeDifference(notiData?.created)}</Text>
         </View>
     </View> 
 }

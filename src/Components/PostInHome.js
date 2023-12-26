@@ -36,6 +36,7 @@ import moment from 'moment';
 import {FlatList, Modal, ScrollView } from "react-native";
 import { Alert } from 'react-native';
 import { formatTimeDifference } from '../Services/Helper/common';
+import FeelingBar from './FeelingBar';
 function PostInHome({ navigation, postData, userID, avatar }) {
     const dispatch = useDispatch();
     const [showComment, setShowComment] = useState(false);
@@ -56,6 +57,10 @@ function PostInHome({ navigation, postData, userID, avatar }) {
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
+
+    const handleLongPress = () => {
+        setModalVisible(true);
+    }
     //___________________________________________________________________-
 
     const { user } = useSelector(
@@ -303,11 +308,36 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                             justifyContent: "space-between",
                         }}>
                             <View activeOpacity={.75} style={{ flexDirection: "row", }}>
-                                <Ionicons style={{ top: 2 }} name="happy-sharp" size={22} color= {post.is_felt ? "#6BB7EC" : "#626262"} />
-                                <Pressable onLongPress={toggleModal}>
+                                <Ionicons style={{ top: 2 }} name="happy-sharp" size={22} color= {post.is_felt != "-1" ? "#6BB7EC" : "#ada1a1"} />
+                                <TouchableOpacity onLongPress={handleLongPress}>
                                     <Text style={{ top: 4, left: 3, color: "#626262" }}> Kudos </Text>
-                                </Pressable>
-                                <Modal visible={isModalVisible}>
+                                </TouchableOpacity>
+
+                                {
+                                    isModalVisible && (
+                                        <View style={{
+                                            flexDirection: 'row',
+                                            position: 'absolute',
+                                            top: -70,
+                                            left: 0,
+                                            right: 0,
+                                            bottom: 0,
+                                            backgroundColor: '#fff',
+                                            borderColor: '#f2ebeb',
+                                            borderRadius: 8,
+                                            borderWidth: 2,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            height: 50,
+                                            width: 120
+                                        }}>
+                                            <FeelingBar></FeelingBar>
+                                            <Text onPress={() => setModalVisible(false)} style={{marginRight: 5}}>Đóng</Text>
+                                        </View>
+                                    )
+                                }
+
+                                {/* <Modal visible={isModalVisible}>
                                     <View>
                                         <Text>Chọn lựa chọn của bạn:</Text>
                                         <TouchableOpacity onPress={() => handleFeel(isModalVisible,post.is_felt, 1)}>
@@ -320,7 +350,7 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                                             <Text>Hủy</Text>
                                         </TouchableOpacity>
                                     </View>
-                                </Modal>
+                                </Modal> */}
 
 
                             </View>
