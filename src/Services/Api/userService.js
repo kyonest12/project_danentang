@@ -83,7 +83,7 @@ const setBlock = (userId, type) => {
   return axios.post(`/set_block?user_id=${userId}&type=${type}`);
 }
 const unFriend = (userId) => {
-  return axios.post(`/unfriend?user_id=${userId}`);
+  return axios.post(`/unfriend`, {user_id: userId});
 }
 const delRequestFriend = (userId) => {
   return axios.post(`/unfriend?user_id=${userId}`);
