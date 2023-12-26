@@ -296,6 +296,18 @@ export default function MyFriend({ navigation, data, updateListFriends }) {
             setIsFriendStatus(0);
         }
     }
+
+    function unFriend(userId){
+        userService.unFriend(userId).then((res) => {
+            console.log('unFriend', res);
+            setUnFr(false);
+        }).catch((e) => {
+            console.log('err unfr: ', e);
+        })
+    }
+
+    const [unFr, setUnFr] = useState(true);
+
     useEffect(() => {
         setFriendData(data);
         setIsFriendStatus(+data.isFriendStatus);
@@ -336,18 +348,22 @@ export default function MyFriend({ navigation, data, updateListFriends }) {
                             <Entypo style={{ top: 0, right: 0 }} onPress={() => setIsShowModalExpand(true)}
                                 name="dots-three-horizontal" size={18} color="#626262" />
                         </View>}
-                        {isFriendStatus === 0 && <TouchableOpacity onPress={() => handleSetRequestFriend()}
+                        {unFr && <TouchableOpacity onPress={() => unFriend(friendData.id)}
                             style={{ backgroundColor: COMMON_COLOR.BLUE_COLOR, padding: 10, marginRight: 3, borderRadius: 5 }}>
-                            <Text style={{ color: 'white', textAlign: 'center', fontWeight: '600', fontSize: 15 }}>Thêm bạn bè</Text>
+                            <Text style={{ color: 'white', textAlign: 'center', fontWeight: '600', fontSize: 15 }}>Hủy kết bạn</Text>
                         </TouchableOpacity>}
-                        {isFriendStatus === 1 && <TouchableOpacity onPress={() => handleSetRequestFriend()}
+                        {!unFr && <TouchableOpacity
+                            style={{ backgroundColor: COMMON_COLOR.GRAY_COLOR_BACKGROUND, padding: 6, marginRight: 3, borderRadius: 5 }}>
+                            <Text style={{ color: 'black', textAlign: 'center', fontWeight: '600', fontSize: 15 }}>Đã hủy kết bạn</Text>
+                        </TouchableOpacity>}
+                        {/* {isFriendStatus === 1 && <TouchableOpacity onPress={() => handleSetRequestFriend()}
                             style={{ backgroundColor: COMMON_COLOR.GRAY_COLOR_BACKGROUND, padding: 10, marginRight: 3, borderRadius: 5 }}>
                             <Text style={{ textAlign: 'center', fontWeight: '600', fontSize: 15 }}>Hủy</Text>
                         </TouchableOpacity>}
                         {isFriendStatus === 2 && <TouchableOpacity onPress={() => setIsShowModalAcceptFriend(true)}
                             style={{ backgroundColor: COMMON_COLOR.GRAY_COLOR_BACKGROUND, padding: 10, marginRight: 3, borderRadius: 5 }}>
                             <Text style={{ textAlign: 'center', fontWeight: '600', fontSize: 15 }}>Trả lời</Text>
-                        </TouchableOpacity>}
+                        </TouchableOpacity>} */}
                     </View>
                 }
             </View>

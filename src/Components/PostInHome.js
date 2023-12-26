@@ -36,6 +36,7 @@ import moment from 'moment';
 import {FlatList, Modal, ScrollView } from "react-native";
 import { Alert } from 'react-native';
 import { formatTimeDifference } from '../Services/Helper/common';
+import FeelingBar from './FeelingBar';
 function PostInHome({ navigation, postData, userID, avatar }) {
     const dispatch = useDispatch();
     const [showComment, setShowComment] = useState(false);
@@ -53,9 +54,10 @@ function PostInHome({ navigation, postData, userID, avatar }) {
 
     //___________________________________________________________________-
     const [isModalVisible, setModalVisible] = useState(false);
-    const toggleModal = () => {
-        setModalVisible(!isModalVisible);
-    };
+
+    const handleLongPress = () => {
+        setModalVisible(true);
+    }
     //___________________________________________________________________-
 
     const { user } = useSelector(
@@ -113,36 +115,6 @@ function PostInHome({ navigation, postData, userID, avatar }) {
         }
     }
 
-    const handleFeel = (can, isFelt, type) => {
-        console.log(isFelt)
-        if (can === false)
-            return;
-        if (isFelt === -1) {
-            postService.feel(post?.id, type).then((data) => {
-                print("FEEL: ", data)
-                toggleModal();
-                postUpdated();
-            }
-            ).catch((e) => {
-                console.log(e);
-                setIsError(true);
-            });
-            return
-        }
-        else {
-            postService.deleteFeel(post?.id).then((data) => {
-                print("FEEL: ", data)
-                toggleModal();
-                postUpdated();
-            }
-            ).catch((e) => {
-                console.log(e);
-                setIsError(true);
-            });
-            return
-        }
-    }
-
     const uriEmoji = () => {
         const emo = data.find(x => x.name === (post?.state))
         if (emo)
@@ -151,6 +123,50 @@ function PostInHome({ navigation, postData, userID, avatar }) {
             return null
     }
 
+    function handleFeeling(type, isDelete, postId){
+        console.log('data: ', type, isDelete, postId);
+        if(isDelete) {
+            postService.deleteFeel(postId).then((res) => {
+                console.log('res del: ', res);
+                postUpdated();
+            }).catch((e) => {
+                console.log(e.response);
+            });
+            post.is_felt = "-1";
+        }else{
+            postService.feel(postId, type).then((res) => {
+                console.log(res);
+                postUpdated();
+            }).catch(e => {
+                console.log(e.response);
+            });
+            post.is_felt = type;
+        };
+        setModalVisible(false);
+    }
+
+    function handlePressEmo(){
+        switch(post.is_felt){
+            case "-1": {
+                postService.feel(post.id, "1").then((res) => {
+                    console.log(res);
+                    postUpdated();
+                }).catch((e) => {
+                    console.log(e);
+                });
+                break;
+            }
+            default: {
+                postService.deleteFeel(post.id).then((res) => {
+                    console.log(res);
+                    postUpdated();
+                }).catch(e => {
+                    console.log(e);
+                })
+                break;
+            }
+        }
+    }
 
     useEffect(() => {
         setPost(postData);
@@ -281,9 +297,9 @@ function PostInHome({ navigation, postData, userID, avatar }) {
 
                             <View activeOpacity={.75} style={{ flexDirection: "row", }}>
                                 <Ionicons style={{ top: 2 }} name="happy-sharp" size={22} color="#6BB7EC" />
-                                <Ionicons style={{ top: 2 }} name="sad-sharp" size={22} color="#FFC0CB" />
+                                <Ionicons style={{ top: 2 }} name="sad-sharp" size={22} color="#F42548" />
                                 <Text style={{ top: 4, left: 3, color: "#626262" }}>
-                                    {post?.is_felt === 1 ? `Bạn ${post?.like - 1 > 0 ? `và ${post.feel - 1} người khác` : ''}` : post.feel}
+                                    {post.feel}
                                 </Text>
                             </View>
 
@@ -303,11 +319,58 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                             justifyContent: "space-between",
                         }}>
                             <View activeOpacity={.75} style={{ flexDirection: "row", }}>
-                                <Ionicons style={{ top: 2 }} name="happy-sharp" size={22} color= {post.is_felt ? "#6BB7EC" : "#626262"} />
-                                <Pressable onLongPress={toggleModal}>
-                                    <Text style={{ top: 4, left: 3, color: "#626262" }}> Kudos </Text>
-                                </Pressable>
-                                <Modal visible={isModalVisible}>
+                                {
+                                    post.is_felt != "0" && (
+                                        <Ionicons style={{ top: 2 }} name="happy-sharp" size={22} color= {post.is_felt != "-1" ? "#6BB7EC" : "#ada1a1"} />
+                                    )
+                                }
+                                {
+                                    post.is_felt == "0" && (
+                                        <Ionicons style={{ top: 2 }} name="sad-sharp" size={22} color= {"#F42548"} />
+                                    )
+                                }
+                                <TouchableOpacity onLongPress={handleLongPress} onPress={handlePressEmo}>
+                                    {post.is_felt == "0" && (<Text style={{ top: 4, left: 3, color: "#F42548" }}> Dissapointed </Text>)}
+                                    {post.is_felt == "-1" && (<Text style={{ top: 4, left: 3, color: "#626262" }}> Kudos </Text>)}
+                                    {post.is_felt == "1" && (<Text style={{ top: 4, left: 3, color: "#6BB7EC" }}> Kudos </Text>)}
+                                </TouchableOpacity>
+
+                                {
+                                    isModalVisible && (
+                                        <View style={{
+                                            flexDirection: 'row',
+                                            position: 'absolute',
+                                            top: -70,
+                                            left: 0,
+                                            right: 0,
+                                            bottom: 0,
+                                            backgroundColor: '#fff',
+                                            borderColor: '#f2ebeb',
+                                            borderRadius: 8,
+                                            borderWidth: 2,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            height: 50,
+                                            width: 120
+                                        }}>
+                                            <TouchableOpacity onPress={() => {
+                                                handleFeeling("1", post.is_felt == "1" ? true : false, post.id);
+                                                // post.is_felt = post.is_felt == "1" ? "-1" : "1";
+                                            }}>
+                                                <Ionicons style={{ top: 2, marginLeft: 5 }} name="happy-sharp" size={22} color="#6BB7EC" />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={() => {
+                                                handleFeeling("0", post.is_felt == "0" ? true : false, post.id);
+                                                // post.is_felt = post.is_felt == "0" ? "-1" : "0";
+                                            }}>
+                                                <Ionicons style={{ top: 2, marginLeft: 8, marginRight: 8 }} name="sad-sharp" size={22} color="#F42548" />
+                                            </TouchableOpacity>
+                                            <Text onPress={() => setModalVisible(false)} style={{marginRight: 5, color: '#626262'}}>Đóng</Text>
+                                        </View>
+                                    )
+                                }
+
+                                {/* <Modal visible={isModalVisible}>
                                     <View>
                                         <Text>Chọn lựa chọn của bạn:</Text>
                                         <TouchableOpacity onPress={() => handleFeel(isModalVisible,post.is_felt, 1)}>
@@ -320,7 +383,7 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                                             <Text>Hủy</Text>
                                         </TouchableOpacity>
                                     </View>
-                                </Modal>
+                                </Modal> */}
 
 
                             </View>
