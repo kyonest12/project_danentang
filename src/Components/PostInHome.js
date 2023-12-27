@@ -66,7 +66,8 @@ function PostInHome({ navigation, postData, userID, avatar }) {
     const postUpdated = () => {
         postService.getPost(post.id).then(async (result) => {
             setPost(result.data);
-            await postService.updateListPostsCache([result.data]);
+            console.log(post.feel);
+            // await postService.updateListPostsCache([result.data]);
         }).catch((e) => {
             console.log(e);
         })
@@ -132,7 +133,7 @@ function PostInHome({ navigation, postData, userID, avatar }) {
             }).catch((e) => {
                 console.log(e.response);
             });
-            post.is_felt = "-1";
+            // post.is_felt = "-1";
         }else{
             postService.feel(postId, type).then((res) => {
                 console.log(res);
@@ -140,7 +141,7 @@ function PostInHome({ navigation, postData, userID, avatar }) {
             }).catch(e => {
                 console.log(e.response);
             });
-            post.is_felt = type;
+            // post.is_felt = type;
         };
         setModalVisible(false);
     }
