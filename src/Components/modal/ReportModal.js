@@ -92,7 +92,7 @@ const NetworkError = () => {
     );
 }
 
-export default function ReportModal({ closeModal, postID }) {
+export default function ReportModal({ closeModal, postID}) {
     const [isModalVisible, setModalVisible] = useState(true);
 
     //check internet

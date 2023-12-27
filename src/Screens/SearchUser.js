@@ -19,16 +19,17 @@ import {
 import axios from '../setups/custom_axios';
 import { MaterialIcons, EvilIcons } from '@expo/vector-icons';
 import PostInHome from '../Components/PostInHome';
-function SearchScreen({ navigation }) {
+import SuggestFriend from '../Components/SuggestFriend';
+function SearchUser({ navigation }) {
     const { user } = useSelector(
         (state) => state.auth
     );
     const inputRef = useRef()
     const [keyword, setKeyword] = useState("");
     const [keywordList, setKeywordList] = useState([]);
-    const [isShowPost, setIsShowPost] = useState(false);
+    const [isShowUser, setIsShowUser] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [postList, setPostList] = useState([]);
+    const [userList, setUserList] = useState([]);
     const getCacheSearchList = async () => {
         try {
             let list = JSON.parse(await _getCache("cacheSearchList"));
@@ -46,20 +47,20 @@ function SearchScreen({ navigation }) {
     const handleSearch = (keyword) => {
         // call api search
         setIsLoading(true);
-        axios.post('/search',
+        axios.post('/search_user',
         {
             keyword:keyword,
             index:0,
             count:10,
         }).then((result) => {
             console.log('data', result.data);
-            setPostList(result.data);
+            setUserList(result.data);
             setIsLoading(false);
         }).catch(e => {
             console.log(e);
             setIsLoading(false);
         })
-        setIsShowPost(true)
+        setIsShowUser(true)
         saveCacheSearch(keyword);
     }
     const handleClear = () => {
@@ -75,7 +76,7 @@ function SearchScreen({ navigation }) {
         let tmp = list.filter(word => word.toUpperCase().includes(e.toUpperCase()));
         setKeywordList(tmp);
         setKeyword(e);
-        setIsShowPost(false);
+        setIsShowUser(false);
     }
     const saveCacheSearch = async (keyword) => {
         try {
@@ -138,8 +139,8 @@ function SearchScreen({ navigation }) {
         handleChangeText('');
     }, [])
     return (
-        <View style={{ ...styles.container, backgroundColor: isShowPost ? '#ccc' : 'white' }}>
-            {!isShowPost && <View style={{ flexDirection: 'column', marginHorizontal: 10, padding: 10, paddingTop: 10 }}>
+        <View style={{ ...styles.container, backgroundColor: 'white' }}>
+            {!isShowUser && <View style={{ flexDirection: 'column', marginHorizontal: 10, padding: 10, paddingTop: 10 }}>
                 <View style={{ flexDirection: 'row', width: ' 100%', justifyContent: 'space-between', marginBottom: 15 }}>
                     <Text style={{ color: 'black', fontSize: 20, fontWeight: "bold" }}>Tìm kiếm gần đây</Text>
                     <TouchableOpacity onPress={() => navigation.navigate('deleteSearch')}>
@@ -175,14 +176,15 @@ function SearchScreen({ navigation }) {
             </View>
             }
             {
-                !isLoading && isShowPost && postList?.length > 0 &&
+                !isLoading && isShowUser && userList?.length > 0 &&
                 <FlatList
                     showsVerticalScrollIndicator={false}
                     showsHorizontalScrollIndicator={false}
-                    data={postList}
+                    data={userList}
                     renderItem={(data) => {
-                        // console.log(data);
-                        return <PostInHome navigation={navigation} key={data.item.id} postData={data.item} userID={user.id} />
+                        if (data.id === user.id) return <></>
+                        //console.log(data.item);
+                        return <SuggestFriend navigation={navigation} data={data.item} updateListFriends={() => handleSearch()} />
                     }}
                     // Performance settings
                     removeClippedSubviews={true} // Unmount components when outside of window 
@@ -209,7 +211,7 @@ function SearchScreen({ navigation }) {
 
             }
             {
-                !isLoading && isShowPost && postList?.length === 0 &&
+                !isLoading && isShowUser && userList?.length === 0 &&
                 <Text style={{ paddingTop: 10, paddingHorizontal: 20, fontSize: 17 }}>Không có kết quả tìm kiếm</Text>
             }
             {
@@ -259,4 +261,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default SearchScreen;
+export default SearchUser;

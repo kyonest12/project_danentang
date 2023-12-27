@@ -97,7 +97,16 @@ const delRequestFriend = (userId) => {
 const getUserInforWithToken = (userId, token) =>  {
   return axios.post(`/get_user_info?user_id=${userId}&token=${token}`);
 }
-
+const searchUser = (keyword, index, count) => {
+  return axios.post(
+    '/search_user',
+    {
+      keyword : keyword,
+      index : index,
+      count : count
+    }
+  )
+}
 const userService = {
   setUserName,
   getAllUsers,
@@ -118,7 +127,8 @@ const userService = {
   changeInforAfterSignup,
   delRequestFriend,
   getListBlock,
-  unblock
+  unblock,
+  searchUser
 };
 
 

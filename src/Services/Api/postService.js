@@ -80,7 +80,14 @@ const getPost = (postId) => {
 }
 const reportPost = (data) => {
   const { id, subject, details } = data;
-  return axios.post(`report_post?id=${id}&subject=${subject}&details=${details}`);
+  return axios.post(
+    '/report_post',
+      {
+        id:id,
+        subject:subject,
+        details:details
+      }
+    );
 }
 const getListPostByUserId = (userId) => {
   return axios.post(`get_post_by_userId?userId=${userId}`);

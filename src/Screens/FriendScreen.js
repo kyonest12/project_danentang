@@ -88,7 +88,7 @@ function FriendScreen({ navigation }) {
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Bạn bè</Text>
                     <View style={styles.btnRight}>
-                        <FontAwesome onPress={() => navigation.navigate('search')}
+                        <FontAwesome onPress={() => navigation.navigate('searchUser')}
                             style={{ left: 1 }} name="search" size={22} color="black" />
                     </View>
                 </View>

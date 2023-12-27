@@ -16,6 +16,7 @@ import { verifyToken } from "../Redux/authSlice";
 import LoadingScreen from './LoadingScreen';
 import MessageScreen from './MessageScreen';
 import SearchScreen from './SearchScreen';
+import SearchUser from './SearchUser';
 import CreatePostScreen from './CreatePostScreen';
 import authService from '../Services/Api/authService';
 import SaveLoginInfoScreen from './SaveLoginInfo';
@@ -93,6 +94,7 @@ export default function AppNavigator() {
                 <Stack.Screen name="anothervideo" component={AnotherVideoScreen} options={{ headerShown: false }} />
                 <Stack.Screen name="suggestfriend" component={SuggestFriendScreen} options={{ title: 'Gợi ý' }} />
                 <Stack.Screen name="search" component={SearchScreen} options={{ title: 'Tìm kiếm' }} />
+                <Stack.Screen name="searchUser" component={SearchUser} options={{ title: 'Tìm kiếm người dùng' }} />
                 <Stack.Screen name="accountSetting" component={AccountSetting} options={{ title: 'Cài đặt' }} />
                 <Stack.Screen name="nameSetting" component={NameSetting} options={{ title: 'Tên' }} />
                 <Stack.Screen name="passwordSetting" component={PasswordSetting} options={{ title: 'Đổi mật khẩu' }} />
