@@ -1,4 +1,4 @@
-import {View, Button, Text, Image, ScrollView, TouchableOpacity} from 'react-native';
+import {View, Button, Text, Image, ScrollView, TouchableOpacity, Alert} from 'react-native';
 import React, { useEffect, useState, memo } from 'react';
 import { connect } from 'react-redux';
 import { useDispatch, useSelector } from "react-redux";
@@ -8,17 +8,29 @@ import { MaterialIcons } from 'react-native-vector-icons';
 import { MaterialCommunityIcons } from 'react-native-vector-icons';
 import {FontAwesome5, Feather, AntDesign, EvilIcons} from 'react-native-vector-icons';
 import styles from './style/setting';
+import userService from '../Services/Api/userService';
 
-function SettingScreen({navigation}) {
+function SettingScreen({navigation, route}) {
+    const userId = route.params?.userId;
+    // console.log(route);
     return <ScrollView style={styles.container}>
         <View style = {styles.firstList}>
             <TouchableOpacity
-                onPress={()=> navigation.navigate('editProfile')}
+                onPress={()=> {
+                    userService.setBlock(userId).then((res) =>{
+                        console.log('block: ', res);
+                        Alert.alert("Chặn người dùng thành công!");
+                    }).catch((e) => {
+                        Alert.alert("Có lỗi xảy ra");
+                        console.log(e);
+                    })
+                    navigation.navigate('dashboard');
+                }}
             >
                 <View style={styles.item}>
-                    <Feather name='edit-2' size={25}/>
+                    <Icon name='lock-closed-outline' size={25}/>
                     <Text style={styles.text}>
-                        Chỉnh sửa trang cá nhân
+                        Chặn
                     </Text>
                 </View>
             </TouchableOpacity>

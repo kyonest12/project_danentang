@@ -79,8 +79,14 @@ const getUserFriends = (userId, index, count) => {
 const getSuggestFriends = (index, count) => {
   return axios.post(`/get_suggested_friends`, {index: index, count: count});
 }
-const setBlock = (userId, type) => {
-  return axios.post(`/set_block?user_id=${userId}&type=${type}`);
+const setBlock = (userId) => {
+  return axios.post(`/set_block`, {user_id: userId});
+}
+const getListBlock = (index, count) => {
+  return axios.post('/get_list_blocks', {index: index, count: count});
+}
+const unblock = (userId) => {
+  return axios.post('/unblock', {user_id: userId});
 }
 const unFriend = (userId) => {
   return axios.post(`/unfriend`, {user_id: userId});
@@ -91,6 +97,7 @@ const delRequestFriend = (userId) => {
 const getUserInforWithToken = (userId, token) =>  {
   return axios.post(`/get_user_info?user_id=${userId}&token=${token}`);
 }
+
 const userService = {
   setUserName,
   getAllUsers,
@@ -109,7 +116,9 @@ const userService = {
   setUserCountry,
   getUserInforWithToken,
   changeInforAfterSignup,
-  delRequestFriend
+  delRequestFriend,
+  getListBlock,
+  unblock
 };
 
 

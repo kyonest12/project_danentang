@@ -94,10 +94,10 @@ function MenuScreen({ navigation }) {
                     </TouchableOpacity>
                 </View>
                 <View style={{ flex: 1, flexDirection: 'column', marginRight: 3 }}>
-                    <TouchableOpacity style={styles.item}>
+                    <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('listblock')}>
                         <Image style={{ width: 30, height: 30 }}
                             source={require('../../assets/icons/icon-nhom.png')} />
-                        <Text style={{ fontSize: 15, fontWeight: 'bold' }}>Nhóm</Text>
+                        <Text style={{ fontSize: 15, fontWeight: 'bold' }}>Danh sách đã chặn</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.item}>
                         <Image style={{ width: 30, height: 30 }}

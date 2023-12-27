@@ -300,7 +300,7 @@ function ProfileScreen({ navigation, route }) {
                             )}
                             <TouchableOpacity
                                 style={styles.setting}
-                                onPress={() => navigation.navigate('setting')}
+                                onPress={() => navigation.navigate('setting', {userId: userId})}
                             >
                                 <View>
                                     <MaterialIcons name="more-horiz" size={20} color='#000000' />
