@@ -39,6 +39,8 @@ import { formatTimeDifference } from '../Services/Helper/common';
 import FeelingBar from './FeelingBar';
 function PostInHome({ navigation, postData, userID, avatar }) {
     const dispatch = useDispatch();
+    const [cntFeel, setCntFeel] = useState("0");
+    const [cntMark, setCntMark] = useState("0");
     const [showComment, setShowComment] = useState(false);
     const [showDot, setShowDot] = useState(false);
     const [showReport, setShowReport] = useState(false);
@@ -66,8 +68,10 @@ function PostInHome({ navigation, postData, userID, avatar }) {
     const postUpdated = () => {
         postService.getPost(post.id).then(async (result) => {
             setPost(result.data);
-            console.log(post.feel);
-            // await postService.updateListPostsCache([result.data]);
+            console.log('update: ', result);
+            setCntFeel(String(Number(result.data.disappointed) + Number(result.data.kudos)));
+            setCntMark(result.data.can_mark);
+            await postService.updateListPostsCache([result.data]);
         }).catch((e) => {
             console.log(e);
         })
@@ -300,13 +304,13 @@ function PostInHome({ navigation, postData, userID, avatar }) {
                                 <Ionicons style={{ top: 2 }} name="happy-sharp" size={22} color="#6BB7EC" />
                                 <Ionicons style={{ top: 2 }} name="sad-sharp" size={22} color="#F42548" />
                                 <Text style={{ top: 4, left: 3, color: "#626262" }}>
-                                    {post.feel}
+                                    {post.is_felt == "-1" ? post.feel : (Number(post.feel ? post.feel : cntFeel) > 1 ? 'Bạn và ' + String(Number(post.feel ? post.feel : cntFeel) -1) + ' người khác' : 'Bạn')}
                                 </Text>
                             </View>
 
                             <View activeOpacity={.75} style={{ flexDirection: "row", }}>
                                 <Text style={{ top: 4, left: 3, color: "#626262" }}> 
-                                    {post.comment_mark} Marks
+                                    {post.comment_mark ? post.comment_mark : cntMark} Marks
                                 </Text>
                             </View>
 
