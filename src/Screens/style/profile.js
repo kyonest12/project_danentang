@@ -198,6 +198,15 @@ export default styles = StyleSheet.create({
         alignItems: "center",
         marginRight: 15
     },
+    plusModal: {
+        height: 20,
+        width:20,
+        borderRadius: 40,
+        backgroundColor: '#E4E6EB',
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: 15
+    },
     contentCover: {
         position: "relative",
         bottom: 0,

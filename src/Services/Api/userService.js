@@ -107,6 +107,15 @@ const searchUser = (keyword, index, count) => {
     }
   )
 }
+const buyCoin = (coin) => {
+  return axios.post(
+    '/buy_coins',
+    {
+      code : 'string',
+      coins: coin
+    }
+  )
+}
 const userService = {
   setUserName,
   getAllUsers,
@@ -128,7 +137,8 @@ const userService = {
   delRequestFriend,
   getListBlock,
   unblock,
-  searchUser
+  searchUser,
+  buyCoin
 };
 
 
