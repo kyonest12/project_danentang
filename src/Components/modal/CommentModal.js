@@ -113,7 +113,7 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
             });
         console.log("______________________________________")
         console.log("postId:", postId)
-        console.log("comment: ", listComment)
+        console.log("comment: ", listComment.data.length)
         console.log("______________________________________")
         setComments(listComment.data);
         setIsLoading(false);
