@@ -10,7 +10,8 @@ import {
     ScrollView,
     ToastAndroid,
     RefreshControl,
-    Alert
+    Alert,
+    ActivityIndicator 
 } from 'react-native';
 import { SimpleGrid } from 'react-native-super-grid';
 import { connect } from 'react-redux';
@@ -32,6 +33,8 @@ import userService from '../Services/Api/userService';
 import PostInHome from "../Components/PostInHome";
 import { resetEmojiSlice } from '../Redux/emojiSlice';
 import { resetAddUpdateDeletePost } from '../Redux/postSlice';
+import Modal from 'react-native-modal';
+import { TextInput } from 'react-native-paper';
 
 function ProfileScreen({ navigation, route }) {
     const dispatch = useDispatch();
@@ -46,8 +49,7 @@ function ProfileScreen({ navigation, route }) {
         );
 
     let av = "https://phongreviews.com/wp-content/uploads/2022/11/avatar-facebook-mac-dinh-13.jpg";
-    const userId = route?.params?.userId;
-
+    var userId = route?.params?.userId;
     const [showModalAva, setShowModalAva] = useState(false);
     const [showModalCover, setShowModalCover] = useState(false);
     const [listPost, setListPost] = useState([]);
@@ -56,6 +58,9 @@ function ProfileScreen({ navigation, route }) {
     const { user } = useSelector(
         (state) => state.auth
     );
+    if (userId === undefined) {
+        userId = user.id
+    }
     const { currentTabIndex } = useSelector(
         (state) => state.tab
     );
@@ -63,12 +68,33 @@ function ProfileScreen({ navigation, route }) {
     const [reload, setReload] = useState(false);
     const { userInfor, successChangeAva } = useSelector((state) => state.user);
     // console.log(userInfor);
+    const [isModalVisible, setModalVisible] = useState(false);
     const [userInfors, setUserInfors] = useState(userInfor);
     const onRefresh = async () => {
         setRefreshing(true);
         handleGetData();
         await delay(2000);
         setRefreshing(false);
+        setModalVisible(false);
+    }
+    
+    
+    const [isCoinLoading, setIsCoinLoading] = useState(false);
+    const [coinAmount, setCoinAmount] = useState('');
+    const handlePress = () => {
+        setModalVisible(true);
+    }
+    const handelBuyCoin = (coinAmount) => {
+        try {
+            setIsCoinLoading(true);
+            userService.buyCoin(coinAmount);
+            setIsCoinLoading(false);
+            Alert.alert('Nạp thêm coin', `Bạn đã nạp thành công ${coinAmount} coin.`, [{ text: 'OK', onPress: onRefresh }]);
+          } catch (error) {
+            console.error('Error:', error);
+            setIsCoinLoading(false);
+            Alert.alert('Lỗi', 'Đã có lỗi xảy ra khi nạp coin.');
+          }
     }
     const handleGetData = () => {
         postService.getListPostByUserId(userId ? userId : user.id).then((result) => {
@@ -76,7 +102,7 @@ function ProfileScreen({ navigation, route }) {
         }).catch(e => {
             console.log(e);
         });
-        
+        console.log(userId)
         if (userId) {
             userService.getUserInfor(userId).then((result) => {
                 setUserInfors(result.data);
@@ -316,6 +342,68 @@ function ProfileScreen({ navigation, route }) {
                     <Text style={styles.description}>
                         {userInfors?.description}
                     </Text>
+                    <Text style={styles.title}>
+                        Coin
+                    </Text>
+                    <View style={styles.rowModal}>
+                        <View style={styles.iconModal}>
+                            <FontAwesome5 name='coins' size={15} />
+                        </View>
+                        <Text style={{ fontSize: 15, marginTop: 5, fontWeight: '500' }}>
+                            {userInfors.coins} coins
+                        </Text>
+                        <TouchableOpacity onPress={handlePress}>
+                            <View style={styles.iconModal}>
+                                <FontAwesome5 name='plus' size={15} />
+                            </View>
+                        </TouchableOpacity>
+                        {
+                        isModalVisible && (
+                            <View style={{
+                                
+                                top: -70,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                marginLeft: 15,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                height: 50,
+                                width: 100
+                            }}>
+                                <View style={{flexDirection: 'row',
+                                    alignItems: 'center', top: 70}}>
+                                    <TextInput
+                                        style={{
+                                            borderWidth: 1,
+                                            borderRadius: 5,
+                                            padding: 5,
+                                            margin: 10,
+                                            height: 30,
+                                            width: 120,
+                                            marginRight: 5,
+                                          }}
+                                        placeholder="Nhập coin"
+                                        keyboardType="numeric"
+                                        value={coinAmount}
+                                        onChangeText={(text) => setCoinAmount(text)}
+                                    />
+                                    <TouchableOpacity onPress={() => setModalVisible(false)} style={{padding: 0}}>
+                                        <FontAwesome5 name='times' size={20} color="#626262" />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => handelBuyCoin(coinAmount)} style={{padding: 5}}>
+                                        <FontAwesome5 name='check' size={20} color="#626262" />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                            )
+                        }
+                    </View>
+                    {isCoinLoading && (
+                        <View>
+                            <ActivityIndicator animating={true} size="large" color="green" />
+                        </View>
+                    )}
                     {/* <View style={styles.rowInfor}>
                         <MaterialCommunityIcons name='school' size={27} color='#909698' />
                         <Text style={styles.hardTextAddress}>
@@ -418,9 +506,6 @@ function ProfileScreen({ navigation, route }) {
                             <Text  style={styles.titleButton}>Tìm bạn bè</Text>
                         </TouchableOpacity>
                     </View>
-                    <Text style={{ fontSize: 18, color: '#7a7c7d', marginTop: 5 }}>
-                        {`${cntFriend} người bạn`}
-                    </Text>
                     <SimpleGrid
                         data={friends}
                         spacing={2}
@@ -492,6 +577,5 @@ function Friend({ data, navigation, userId }) {
         </TouchableOpacity>
     );
 }
-
 
 export default memo(ProfileScreen);
