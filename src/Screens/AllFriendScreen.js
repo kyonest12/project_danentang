@@ -28,7 +28,7 @@ function AllFriendScreen({ route, navigation }) {
     const targetUserId = route.params?.targetUserId;
     const showFilterTab = route.params?.showFilterTab;
     const showSearchFriend = route.params?.showSearchFriend;
-    const defaultCount = 8;
+    const defaultCount = 15;
     const defaultIndex = useRef(0);
     const dispatch = useDispatch();
     const netInfo = useNetInfo();

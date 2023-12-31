@@ -92,16 +92,11 @@ const reportPost = (data) => {
 const getListPostByUserId = (userId) => {
   return axios.post(`get_post_by_userId?userId=${userId}`);
 }
-const setMarkComment = async (postId, content, type) => {
+const setMarkComment = async (data) => {
   return axios.post(
     '/set_mark_comment', 
-    {
-      id : postId,
-      content: content,
-      index: 0,
-      count: 0,
-      type: type
-    });
+    data
+    );
 }
 const getMarkComment = async (postId, index, count) => {
   return axios.post(
