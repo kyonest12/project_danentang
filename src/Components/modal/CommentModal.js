@@ -11,12 +11,17 @@ import { getTextWithIcon} from '../../Services/Helper/common';
 import { Audio } from "expo-av";
 import axios from "../../setups/custom_axios";
 import { _getCache } from "../../Services/Helper/common";
-import { Paragraph } from "react-native-paper";
+import { IconButton, Paragraph, RadioButton } from "react-native-paper";
 import ViewWithIcon from "../ViewWithIcon";
 import { formatTimeDifference } from '../../Services/Helper/common';
+import postService from "../../Services/Api/postService";
+import Icon from 'react-native-vector-icons/FontAwesome5';
 //đây là mỗi phần tử comment, có urlImage, ten và textComment, time
 function ComponentComment(props) {
-    console.log("props: ", props)
+    console.log("props: ", props);
+    function sendMarkId(id){
+        props.callback(id);
+    }
     return (
         <View style={styles.commentContainer}>
             <Image
@@ -41,23 +46,27 @@ function ComponentComment(props) {
                 {/* //time+like+response */}
                 <View style={{ flexDirection: 'row', marginLeft: 15 }}>
                     <Text style={{ fontSize: 13, color: '#656766', marginRight: 13 }}>{props?.time}</Text>
-                    <Text style={{ fontWeight: 'bold', fontSize: 15, color: '#656766', marginRight: 13 }}>Thích</Text>
-                    <TouchableOpacity>
-                        <Text style={{ fontWeight: 'bold', fontSize: 15, color: '#656766' }}> 
-                            Phản hồi
-                        </Text>
+                    <Text style={{ fontWeight: 'bold', fontSize: 15, color: '#656766', marginRight: 13 }}>
+                        {props.type == "1" ? "Trust" : (props.type == "0" ? "Fake": " ")}
+                    </Text>
+                    {props.type != "-1" && (
+                        <TouchableOpacity onPress={() => sendMarkId({id: props.markId, name: props.name})}>
+                            <Text style={{ fontWeight: 'bold', fontSize: 15, color: '#656766' }}> 
+                                Phản hồi
+                            </Text>
                     </TouchableOpacity>
+                    )}
 
                     {/* số like comment */}
 
-                    <Text style={{ fontWeight: 'bold', fontSize: 15, color: '#656766', marginLeft: 20, marginRight: 2 }}>1</Text>
+                    {/* <Text style={{ fontWeight: 'bold', fontSize: 15, color: '#656766', marginLeft: 20, marginRight: 2 }}>1</Text>
                     <View style={{ width: 16, height: 16, marginTop: 2, borderRadius: 20, paddingTop: 1, alignItems: 'center' }}>
                         <Ionicons style={{}} name="happy-outline" size={15} color="#626262" />
                     </View>
                     <Text style={{ fontWeight: 'bold', fontSize: 15, color: '#656766', marginLeft: 20, marginRight: 2 }}>1</Text>
                     <View style={{ width: 16, height: 16, marginTop: 2, borderRadius: 20, paddingTop: 1, alignItems: 'center' }}>
                         <Ionicons style={{}} name="sad-outline" size={15} color="#626262" />
-                    </View>
+                    </View> */}
 
 
                 </View>
@@ -94,9 +103,10 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
     const [isLoading, setIsLoading] = useState(false);
     const index = useRef(0);
     //goi api lay ra thong tin cac comment cua bai viet co post_id
-    const setComment = async (postId) => {
+    const setComment = async (postId, type=0) => {
         const textCommentTmp = textComment + " ";
-        await axios.post(`/set_mark_comment?id=${postId}&content=${getTextWithIcon(textCommentTmp)}&index=0&count=10`);
+        let res = await axios.post(`/set_mark_comment?id=${postId}&content=${getTextWithIcon(textCommentTmp)}&index=0&count=10&type=${type}`);
+        console.log('res: ---------------', res);
         setTextComment("");
         getComment(postId);
         postUpdated();
@@ -113,7 +123,7 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
             });
         console.log("______________________________________")
         console.log("postId:", postId)
-        console.log("comment: ", listComment.data.length)
+        console.log("comment: ", listComment.data)
         console.log("______________________________________")
         setComments(listComment.data);
         setIsLoading(false);
@@ -121,34 +131,30 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
     }
 
 
-    const handleCommentSubmit = async () => {
-        Alert.alert(
-        'Gán Marks cho bình luận này:',
-        [
-            {
-            text: 'Trust',
-            onPress: () => {
-                // Xử lý trường hợp 1
-                console.log('Trust được chọn');
-                setComment(postId);
-                setTextComment('');
-            },
-            },
-            {
-            text: 'Fake',
-            onPress: () => {
-                // Xử lý trường hợp 2
-                console.log('Fake được chọn');
-                // Thêm xử lý cho trường hợp 2 nếu cần
-            },
-            },
-            {
-            text: 'Hủy',
-            style: 'cancel',
-            },
-        ],
-        { cancelable: false }
-        );
+    function handleCommentSubmit(){
+        // {
+        //     id : postId,
+        //     content: content,
+        //     index: 0,
+        //     count: 10,
+        //     type: type
+        //   }
+        let dataCmt = {count: 10, index: 0, id: postId};
+        let textCommentTmp = textComment + " ";
+        dataCmt.content = getTextWithIcon(textCommentTmp);
+        let type = checked == "trust" ? 1 : 0;
+        dataCmt.type = type;
+        if(markId.id != "-1"){
+            dataCmt.mark_id = markId.id;
+        }
+        postService.setMarkComment(dataCmt).then((res) => {
+            console.log("res: -------------", res);
+            setComments(res.data);
+            setTextComment("");
+            setMarkId({id: "-1", name: ""});
+        }).catch((e) => {
+            console.log('lỗi -----------', e.response)
+        })
     }
 
     //hàm này gọi khi mở modal comment lên
@@ -171,6 +177,8 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
         onScreenLoad();
     }, [])
 
+    const [checked, setChecked] = useState("trust");
+
     //check internet
     const [isConnected, setConnected] = useState(false);
     useEffect(() => {
@@ -184,7 +192,13 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
         return () => {
             unsubscribe();
         };
-    }, [])
+    }, []);
+
+    const [markId, setMarkId] = useState({id: "-1", name: ""});
+    function handleMarkId(id){
+        console.log("Mark id is: ", id);
+        setMarkId(id);
+    }
 
     const [h, setH] = useState(400);//chieu cao khi cuon
     return (
@@ -242,7 +256,18 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
                                         if người dùng hiện tại không chặn người đăng comment này
                                         *************************************
                                     */
-                                        return <ComponentComment time={formatTimeDifference(item.created)} urlImage={item.poster.avatar} key={data.index} name={item.poster.name} textComment={item.mark_content} />
+                                    if(data.item.comments.length == 0){
+                                        return <ComponentComment markId={item.id} time={formatTimeDifference(item.created)} urlImage={item.poster.avatar} key={data.index} name={item.poster.name} textComment={item.mark_content} type={item.type_of_mark} callback={handleMarkId}/>
+                                    }else{
+                                        return <View>
+                                            <ComponentComment markId={item.id} time={formatTimeDifference(item.created)} urlImage={item.poster.avatar} key={data.index} name={item.poster.name} textComment={item.mark_content} type={item.type_of_mark} callback={handleMarkId}/>
+                                            <View style={{marginLeft: 50}}>
+                                                {item.comments.map((childData, index) => (
+                                                    <ComponentComment time={formatTimeDifference(childData.created)} urlImage={childData.poster.avatar} key={index} name={childData.poster.name} textComment={childData.content} type="-1" />
+                                                ))}
+                                            </View>
+                                        </View>
+                                    }
                                 }}
                                 // Performance settings
                                 removeClippedSubviews={true} // Unmount components when outside of window 
@@ -268,6 +293,46 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
 
                         {/* thanh viết bình luận */}
                         <View style={styles.binhluan}>
+                            {
+                                markId.id == "-1" && (
+                                    <View>
+                                        <Text>Gán marks cho bình luận:</Text>
+                                        <View style={{flexDirection: 'row'}}>
+                                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                                <RadioButton
+                                                    value="trust"
+                                                    status={checked == "trust" ? 'checked' : 'unchecked'}
+                                                    onPress={() => setChecked("trust")}
+                                                    color="#0866FF"
+                                                />
+                                                <Text>Trust</Text>
+                                            </View>
+            
+                                            <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 20}}>
+                                                <RadioButton
+                                                    value="fake"
+                                                    status={checked == "fake" ? 'checked' : 'unchecked'}
+                                                    onPress={() => setChecked("fake")}
+                                                    color="#0866FF"
+                                                />
+                                                <Text>Fake</Text>
+                                            </View>
+                                        </View>
+                                    </View>
+                                )
+                            }
+                            <View>
+                                {markId.id != "-1" && (
+                                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                                        <Text style={{marginLeft: 5}}>Đang phản hồi lại <Text style={{fontWeight: 'bold'}}>{markId.name}</Text></Text>
+                                        <TouchableOpacity onPress={() => setMarkId({id: "-1", name: ""})}>
+                                            <IconButton
+                                                icon={() => <Icon name="times" size={22} color="black" />} // Sử dụng icon "đầu X" từ FontAwesome5
+                                            />
+                                        </TouchableOpacity>
+                                    </View>
+                                )}
+                            </View>
                             <View style={styles.inputContainer}>
                                 <TextInput
                                     style={styles.input}
@@ -275,10 +340,10 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
                                     value={getTextWithIcon(textComment)}
                                     placeholder=" Viết bình luận..."
                                     keyboardType="default"
-                                    onSubmitEditing={async () => { await setComment(postId); }}
+                                    // onSubmitEditing={async () => { await setComment(postId); }}
                                 />
                                 {textComment.trim() !== '' && (
-                                    <TouchableOpacity style={styles.sendButton} onPress={handleCommentSubmit}>
+                                    <TouchableOpacity style={styles.sendButton} onPress={() => handleCommentSubmit()}>
                                         <Ionicons name="send" size={25} color="#007BFF" />
                                     </TouchableOpacity>
                                 )}
@@ -348,7 +413,7 @@ const styles = StyleSheet.create({
         flex: 10
     },
     binhluan: {
-        flex: 1.25,
+        flex: 2.4,
         borderTopWidth: 1.5,
         borderTopColor: '#d2d2d2'
     },

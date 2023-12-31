@@ -24,7 +24,7 @@ import userService from '../Services/Api/userService';
 import { delay, getTimeSendRequestFriend } from '../Services/Helper/common';
 import RequestFriend from '../Components/RequestFriend';
 function FriendScreen({ navigation }) {
-    const defaultCount = 0;
+    const defaultCount = 15;
     const defaultIndex = useRef(0);
     const dispatch = useDispatch();
     const netInfo = useNetInfo();
@@ -49,7 +49,7 @@ function FriendScreen({ navigation }) {
     };
     const handleGetListRequest = () => {
         // console.log('screen friend');
-        userService.getListFriendRequest(defaultCount*5, 5).then((result) => {
+        userService.getListFriendRequest(0, defaultCount).then((result) => {
             // console.log(result);
             // console.log('a00');
             defaultIndex.current += defaultCount;
