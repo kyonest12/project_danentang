@@ -16,7 +16,62 @@ import ViewWithIcon from "../ViewWithIcon";
 import { formatTimeDifference } from '../../Services/Helper/common';
 import postService from "../../Services/Api/postService";
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import { COMMON_COLOR } from "../../Services/Helper/constant";
 //đây là mỗi phần tử comment, có urlImage, ten và textComment, time
+
+function ListFeelComponent({navigation, isVisible, id, closeModal}){
+
+    const [feels, setFeels] = useState([]);
+    useEffect(() => {
+        postService.getListFeel(id, 0, 20).then((res) => {
+            // console.log('res list feel: ', res.data);
+            setFeels(res.data);
+        }).catch(e => {
+            console.log('error list feel: ', e.response);
+        })
+    }, [])
+
+    return (
+        <Modal isVisible={isVisible}>
+            <View style={{backgroundColor: '#fff'}}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                    <Text style={{marginLeft: 10, fontWeight: 'bold'}}>Những người bày tỏ cảm xúc</Text>
+                    <TouchableOpacity onPress={closeModal}>
+                        <IconButton
+                            icon={() => <Icon name="times" size={22} color="black" />} // Sử dụng icon "đầu X" từ FontAwesome5
+                        />
+                    </TouchableOpacity>
+                </View>
+                <View>
+                    {feels.length == 0 && (<Text>Không có người bày tỏ cảm xúc</Text>)}
+                    {feels.map((item) => (
+                        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5, marginTop: 5}} key={item.id}>
+                            <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 15}}>
+                                <TouchableOpacity onPress={() => {
+                                    // navigation.navigate("profile", { userId: item.feel.user.id });
+                                }}>
+                                    <Image source={
+                                        !item.feel.user.avatar ? require('../../../assets/images/default_avatar.jpg') 
+                                            : { uri: item.feel.user.avatar }
+                                    } style={{ width: 50, height: 50, borderRadius: 25, borderColor: COMMON_COLOR.GRAY_COLOR_BACKGROUND, borderWidth: 1 }} />
+                                </TouchableOpacity>
+                                <Text style={{marginLeft: 10}}>{item.feel.user.name}</Text>
+                            </View>
+                            <View style={{marginRight: 15}}>
+                                {item.feel.type != "0" ? (
+                                    <Ionicons style={{ top: 2 }} name="happy-sharp" size={22} color="#6BB7EC" />
+                                ) : (
+                                    <Ionicons style={{ top: 2 }} name="sad-sharp" size={22} color="#F42548" />
+                                )}
+                            </View>
+                        </View>
+                    ))}
+                </View>
+            </View>
+        </Modal>
+    )
+}
+
 function ComponentComment(props) {
     console.log("props: ", props);
     function sendMarkId(id){
@@ -103,14 +158,6 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
     const [isLoading, setIsLoading] = useState(false);
     const index = useRef(0);
     //goi api lay ra thong tin cac comment cua bai viet co post_id
-    const setComment = async (postId, type=0) => {
-        const textCommentTmp = textComment + " ";
-        let res = await axios.post(`/set_mark_comment?id=${postId}&content=${getTextWithIcon(textCommentTmp)}&index=0&count=10&type=${type}`);
-        console.log('res: ---------------', res);
-        setTextComment("");
-        getComment(postId);
-        postUpdated();
-    };
     const getComment = async (postId) => {
         if (isLoading) return;
         setIsLoading(true);
@@ -199,10 +246,11 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
         console.log("Mark id is: ", id);
         setMarkId(id);
     }
-
+    const [showListFeel, setShowListFeel] = useState(false);
     const [h, setH] = useState(400);//chieu cao khi cuon
     return (
         <View>
+            <ListFeelComponent isVisible={!showListFeel} id={postId} closeModal={() => setShowListFeel(!showListFeel)}></ListFeelComponent>
             <Modal
                 style={{ margin: 0 }}
                 isVisible={isModalVisible}
@@ -218,25 +266,21 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
                         <View style={styles.like}>
                             <TouchableOpacity
                                 style={styles.touchable}
-                                onPress={() => console.log("Show nguoi like")}
+                                onPress={() => setShowListFeel(!showListFeel)}
                             >
                                 {/* <Ionicons style={{marginTop: 3}} name="thumbs-up" size={23} color="#1e90ff" /> */}
-                                <View style={{ width: 16, height: 16, backgroundColor: '#1f65ed', marginTop: 9, borderRadius: 20, paddingTop: 1, alignItems: 'center' }}>
-                                    <Ionicons style={{}} name="thumbs-up" size={12} color="white" />
-                                </View>
-                                <View style={{ width: 16, height: 16, backgroundColor: 'red', marginTop: 9, borderRadius: 20, paddingTop: 1, alignItems: 'center' }}>
-                                    <Ionicons style={{}} name="heart" size={12} color="white" />
-                                </View>
+                                <Ionicons style={{ top: 2 }} name="happy-sharp" size={22} color="#6BB7EC" />
+                                <Ionicons style={{ top: 2 }} name="sad-sharp" size={22} color="#F42548" />
                                 {/* <Text style={{fontSize: 20, fontWeight: "bold", color: 'black', marginTop: 3}}> 1.234</Text> */}
                                 <Ionicons style={{}} name="chevron-forward-outline" size={33} color="black" />
                             </TouchableOpacity>
 
-                            <AntDesign name={like} size={22} color={'#216fdb'} onPress={() => { if (like == "like1") setLike("like2"); else setLike("like1"); handleLikeSound(); }} />
+                            {/* <AntDesign name={like} size={22} color={'#216fdb'} onPress={() => { if (like == "like1") setLike("like2"); else setLike("like1"); handleLikeSound(); }} /> */}
                         </View>
 
                         {/* thanh phù hợp nhất */}
                         <View style={styles.phuhopnhat}>
-                            <Text style={{ fontSize: 20, marginTop: -5 }}> Tất cả marks</Text>
+                            <Text style={{ fontSize: 20, marginTop: -5 }}>Xem bình luận cũ hơn</Text>
                             <Ionicons style={{ flex: 1, alignItems: "flex-end", border: 1 }} name="chevron-down-outline" size={23} color="black" onPress={() => console.log("Click like")} />
                         </View>
 
@@ -400,7 +444,7 @@ const styles = StyleSheet.create({
     like: {
         flex: 1,
         flexDirection: "row",
-
+        justifyContent: "center"
     },
     phuhopnhat: {
 
