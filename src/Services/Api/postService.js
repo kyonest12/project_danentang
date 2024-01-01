@@ -169,6 +169,17 @@ const deleteFeel = async(id) => {
   );
 }
 
+const getListFeel = async(id, index, count) => {
+  return await axios.post(
+    '/get_list_feels',
+    {
+      id: id,
+      index: index,
+      count: count
+    }
+  )
+}
+
 const postService = {
   getListPosts,
   getListVideos,
@@ -188,5 +199,6 @@ const postService = {
   getNoti,
   feel,
   deleteFeel,
+  getListFeel
 };
 export default postService;

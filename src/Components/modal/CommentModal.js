@@ -16,12 +16,88 @@ import ViewWithIcon from "../ViewWithIcon";
 import { formatTimeDifference } from '../../Services/Helper/common';
 import postService from "../../Services/Api/postService";
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import { COMMON_COLOR } from "../../Services/Helper/constant";
+import { useSelector } from "react-redux";
 //đây là mỗi phần tử comment, có urlImage, ten và textComment, time
+
+function ListFeelComponent({navigation, isVisible, id, closeModal}){
+
+    const [feels, setFeels] = useState([]);
+    useEffect(() => {
+        postService.getListFeel(id, 0, 20).then((res) => {
+            // console.log('res list feel: ', res.data);
+            setFeels(res.data);
+        }).catch(e => {
+            console.log('error list feel: ', e.response);
+        })
+    }, [])
+
+    return (
+        <Modal isVisible={isVisible}>
+            <View style={{backgroundColor: '#fff'}}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                    <Text style={{marginLeft: 10, fontWeight: 'bold'}}>Những người bày tỏ cảm xúc</Text>
+                    <TouchableOpacity onPress={closeModal}>
+                        <IconButton
+                            icon={() => <Icon name="times" size={22} color="black" />} // Sử dụng icon "đầu X" từ FontAwesome5
+                        />
+                    </TouchableOpacity>
+                </View>
+                <View>
+                    {feels.length == 0 && (<Text style={{marginLeft: 10, marginBottom: 10}}>Không có người bày tỏ cảm xúc</Text>)}
+                    {feels.map((item) => (
+                        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5, marginTop: 5}} key={item.id}>
+                            <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 15}}>
+                                <TouchableOpacity onPress={() => {
+                                    // navigation.navigate("profile", { userId: item.feel.user.id });
+                                }}>
+                                    <Image source={
+                                        !item.feel.user.avatar ? require('../../../assets/images/default_avatar.jpg') 
+                                            : { uri: item.feel.user.avatar }
+                                    } style={{ width: 50, height: 50, borderRadius: 25, borderColor: COMMON_COLOR.GRAY_COLOR_BACKGROUND, borderWidth: 1 }} />
+                                </TouchableOpacity>
+                                <Text style={{marginLeft: 10}}>{item.feel.user.name}</Text>
+                            </View>
+                            <View style={{marginRight: 15}}>
+                                {item.feel.type != "0" ? (
+                                    <Ionicons style={{ top: 2 }} name="happy-sharp" size={22} color="#6BB7EC" />
+                                ) : (
+                                    <Ionicons style={{ top: 2 }} name="sad-sharp" size={22} color="#F42548" />
+                                )}
+                            </View>
+                        </View>
+                    ))}
+                </View>
+            </View>
+        </Modal>
+    )
+}
+
 function ComponentComment(props) {
+    const [editing, setEditing] = useState(false);
+
     console.log("props: ", props);
     function sendMarkId(id){
         props.callback(id);
     }
+
+    useEffect(() => {
+        if(props.checkDoneEdit) setEditing(false);
+    }, [props.checkDoneEdit])
+
+    function handleEditComment(){
+        setEditing(true);
+        props.edit(
+            {
+                parentId: props.parentId,
+                content: props.textComment,
+                type: props.type,
+                name: props.name
+            }
+        );
+    }
+
+
     return (
         <View style={styles.commentContainer}>
             <Image
@@ -33,14 +109,36 @@ function ComponentComment(props) {
 
             <View>
                 {/* //comment text */}
-                <View style={[styles.commentComponent, { marginTop: 0 }]}>
-                    <Text style={{ fontWeight: 'bold', fontSize: 17 }}>{props?.name}</Text>
-                    <View>
-                        <ViewWithIcon value={props?.textComment}
-                            styleText={{ fontSize: 17 }}
-                            styleIcon={{ width: 17, height: 17 }} />
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <View style={[styles.commentComponent, { marginTop: 0 }]}>
+                        <Text style={{ fontWeight: 'bold', fontSize: 17 }}>{props?.name}</Text>
+                        <View>
+                            {
+                                !editing && (
+                                    <ViewWithIcon value={props?.textComment}
+                                    styleText={{ fontSize: 17 }}
+                                    styleIcon={{ width: 17, height: 17 }} />
+                                )
+                            }
+                            {
+                                editing && (
+                                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                        <Text style={{color: 'blue'}}>Bình luận đang chỉnh sửa</Text>
+                                        <TouchableOpacity onPress={() => {setEditing(false); props.cancelEdit()}}>
+                                            <IconButton
+                                                icon={() => <Icon name="times" size={15} color="black" />} // Sử dụng icon "đầu X" từ FontAwesome5
+                                            />
+                                        </TouchableOpacity>
+                                    </View>
+                                )
+                            }
+                        </View>
                     </View>
-
+                    {props.isOwner && !editing && props.type != "-1" && (
+                        <TouchableOpacity onPress={() => handleEditComment()}>
+                            <Icon name="edit" size={20} color="#656766" />
+                        </TouchableOpacity>
+                    )}
                 </View>
 
                 {/* //time+like+response */}
@@ -102,15 +200,11 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
     const [comments, setComments] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const index = useRef(0);
+    const { user } = useSelector(
+        (state) => state.auth
+    );
+    // console.log('=================',user)
     //goi api lay ra thong tin cac comment cua bai viet co post_id
-    const setComment = async (postId, type=0) => {
-        const textCommentTmp = textComment + " ";
-        let res = await axios.post(`/set_mark_comment?id=${postId}&content=${getTextWithIcon(textCommentTmp)}&index=0&count=10&type=${type}`);
-        console.log('res: ---------------', res);
-        setTextComment("");
-        getComment(postId);
-        postUpdated();
-    };
     const getComment = async (postId) => {
         if (isLoading) return;
         setIsLoading(true);
@@ -148,10 +242,11 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
             dataCmt.mark_id = markId.id;
         }
         postService.setMarkComment(dataCmt).then((res) => {
-            console.log("res: -------------", res);
+            // console.log("res: -------------", res);
             setComments(res.data);
             setTextComment("");
             setMarkId({id: "-1", name: ""});
+            setCheckDone(true);
         }).catch((e) => {
             console.log('lỗi -----------', e.response)
         })
@@ -196,13 +291,36 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
 
     const [markId, setMarkId] = useState({id: "-1", name: ""});
     function handleMarkId(id){
-        console.log("Mark id is: ", id);
+        // console.log("Mark id is: ", id);
         setMarkId(id);
     }
-
+    const [showListFeel, setShowListFeel] = useState(false);
     const [h, setH] = useState(400);//chieu cao khi cuon
+    const [isEdit, setIsEdit] = useState(false);
+    function editComment(data){
+        console.log("&&&&&&&&&&&&&", data);
+        setIsEdit(true);
+        setTextComment(data.content);
+        if (data.type != "-1"){
+            setChecked(data.type == "1" ? "trust" : "fake");
+        }
+        if (data.parentId != "-1"){
+            setMarkId({id: data.parentId, name: data.name});
+        }
+    }
+
+    function cancelEdit(){
+        setIsEdit(false);
+        setTextComment("");
+        setChecked("trust");
+        setMarkId({id: "-1", name: ""});
+    }
+
+    const [checkDone, setCheckDone] = useState(false);
+
     return (
         <View>
+            <ListFeelComponent isVisible={!showListFeel} id={postId} closeModal={() => setShowListFeel(!showListFeel)}></ListFeelComponent>
             <Modal
                 style={{ margin: 0 }}
                 isVisible={isModalVisible}
@@ -218,25 +336,21 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
                         <View style={styles.like}>
                             <TouchableOpacity
                                 style={styles.touchable}
-                                onPress={() => console.log("Show nguoi like")}
+                                onPress={() => setShowListFeel(!showListFeel)}
                             >
                                 {/* <Ionicons style={{marginTop: 3}} name="thumbs-up" size={23} color="#1e90ff" /> */}
-                                <View style={{ width: 16, height: 16, backgroundColor: '#1f65ed', marginTop: 9, borderRadius: 20, paddingTop: 1, alignItems: 'center' }}>
-                                    <Ionicons style={{}} name="thumbs-up" size={12} color="white" />
-                                </View>
-                                <View style={{ width: 16, height: 16, backgroundColor: 'red', marginTop: 9, borderRadius: 20, paddingTop: 1, alignItems: 'center' }}>
-                                    <Ionicons style={{}} name="heart" size={12} color="white" />
-                                </View>
+                                <Ionicons style={{ top: 2 }} name="happy-sharp" size={22} color="#6BB7EC" />
+                                <Ionicons style={{ top: 2 }} name="sad-sharp" size={22} color="#F42548" />
                                 {/* <Text style={{fontSize: 20, fontWeight: "bold", color: 'black', marginTop: 3}}> 1.234</Text> */}
                                 <Ionicons style={{}} name="chevron-forward-outline" size={33} color="black" />
                             </TouchableOpacity>
 
-                            <AntDesign name={like} size={22} color={'#216fdb'} onPress={() => { if (like == "like1") setLike("like2"); else setLike("like1"); handleLikeSound(); }} />
+                            {/* <AntDesign name={like} size={22} color={'#216fdb'} onPress={() => { if (like == "like1") setLike("like2"); else setLike("like1"); handleLikeSound(); }} /> */}
                         </View>
 
                         {/* thanh phù hợp nhất */}
                         <View style={styles.phuhopnhat}>
-                            <Text style={{ fontSize: 20, marginTop: -5 }}> Tất cả marks</Text>
+                            <Text style={{ fontSize: 20, marginTop: -5 }}>Xem bình luận cũ hơn</Text>
                             <Ionicons style={{ flex: 1, alignItems: "flex-end", border: 1 }} name="chevron-down-outline" size={23} color="black" onPress={() => console.log("Click like")} />
                         </View>
 
@@ -250,20 +364,20 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
                                 data={comments}
                                 renderItem={(data) => {
                                     const item = data.item;
-                                    console.log("DATA: ", data.item)
+                                    // console.log("DATA: ", data.item)
                                     /*
                                         *************************************
                                         if người dùng hiện tại không chặn người đăng comment này
                                         *************************************
                                     */
                                     if(data.item.comments.length == 0){
-                                        return <ComponentComment markId={item.id} time={formatTimeDifference(item.created)} urlImage={item.poster.avatar} key={data.index} name={item.poster.name} textComment={item.mark_content} type={item.type_of_mark} callback={handleMarkId}/>
+                                        return <ComponentComment checkDoneEdit={checkDone} cancelEdit={cancelEdit} isOwner={user.id == item.poster.id} markId={item.id} parentId={"-1"} time={formatTimeDifference(item.created)} urlImage={item.poster.avatar} key={data.index} name={item.poster.name} textComment={item.mark_content} type={item.type_of_mark} callback={handleMarkId} edit={editComment} />
                                     }else{
                                         return <View>
-                                            <ComponentComment markId={item.id} time={formatTimeDifference(item.created)} urlImage={item.poster.avatar} key={data.index} name={item.poster.name} textComment={item.mark_content} type={item.type_of_mark} callback={handleMarkId}/>
+                                            <ComponentComment checkDoneEdit={checkDone} cancelEdit={cancelEdit} isOwner={user.id == item.poster.id} markId={item.id} parentId={"-1"} time={formatTimeDifference(item.created)} urlImage={item.poster.avatar} key={data.index} name={item.poster.name} textComment={item.mark_content} type={item.type_of_mark} callback={handleMarkId} edit={editComment}/>
                                             <View style={{marginLeft: 50}}>
                                                 {item.comments.map((childData, index) => (
-                                                    <ComponentComment time={formatTimeDifference(childData.created)} urlImage={childData.poster.avatar} key={index} name={childData.poster.name} textComment={childData.content} type="-1" />
+                                                    <ComponentComment cancelEdit={cancelEdit} isOwner={user.id == childData.poster.id} parentId={item.id} time={formatTimeDifference(childData.created)} urlImage={childData.poster.avatar} key={index} name={childData.poster.name} textComment={childData.content} type="-1" edit={editComment}/>
                                                 ))}
                                             </View>
                                         </View>
@@ -293,6 +407,19 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
 
                         {/* thanh viết bình luận */}
                         <View style={styles.binhluan}>
+                            {/* {
+                                isEdit && (
+                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                    <Text>
+                                        Đang chỉnh sửa bình luận
+                                    </Text>
+                                    <TouchableOpacity onPress={() => setIsEdit(false)}>
+                                        <IconButton
+                                            icon={() => <Icon name="times" size={15} color="black" />} // Sử dụng icon "đầu X" từ FontAwesome5
+                                        />
+                                    </TouchableOpacity>
+                                </View>)
+                            } */}
                             {
                                 markId.id == "-1" && (
                                     <View>
@@ -325,7 +452,7 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
                                 {markId.id != "-1" && (
                                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
                                         <Text style={{marginLeft: 5}}>Đang phản hồi lại <Text style={{fontWeight: 'bold'}}>{markId.name}</Text></Text>
-                                        <TouchableOpacity onPress={() => setMarkId({id: "-1", name: ""})}>
+                                        <TouchableOpacity onPress={() => {setMarkId({id: "-1", name: ""}); setTextComment("")}}>
                                             <IconButton
                                                 icon={() => <Icon name="times" size={22} color="black" />} // Sử dụng icon "đầu X" từ FontAwesome5
                                             />
@@ -400,7 +527,7 @@ const styles = StyleSheet.create({
     like: {
         flex: 1,
         flexDirection: "row",
-
+        justifyContent: "center"
     },
     phuhopnhat: {
 
