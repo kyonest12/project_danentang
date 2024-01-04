@@ -352,11 +352,12 @@ function ProfileScreen({ navigation, route }) {
                         <Text style={{ fontSize: 15, marginTop: 5, fontWeight: '500' }}>
                             {userInfors.coins} coins
                         </Text>
-                        <TouchableOpacity onPress={handlePress}>
-                            <View style={styles.iconModal}>
-                                <FontAwesome5 name='plus' size={15} />
-                            </View>
-                        </TouchableOpacity>
+                        {userInfors.id === user.id && <TouchableOpacity onPress={handlePress}>
+                                <View style={styles.iconModal}>
+                                    <FontAwesome5 name='plus' size={15} />
+                                </View>
+                            </TouchableOpacity>
+                        }
                         {
                         isModalVisible && (
                             <View style={{
