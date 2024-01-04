@@ -41,7 +41,7 @@ export const deletePost = createAsyncThunk(
     try {
       return await postService.deletePost(data);
     }catch (e) {
-      console.log("error", e);
+      console.log("error delete: -----------", e.response);
       return thunkAPI.rejectWithValue("something went wrong");
     }
   }

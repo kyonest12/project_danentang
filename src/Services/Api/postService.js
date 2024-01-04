@@ -55,7 +55,7 @@ const editPost = async (data) => {
 }
 const deletePost = async (data) => {
   const {id} = data;
-  return await axios.post(`/delete_post?&id=${id}`);
+  return await axios.post(`/delete_post`, {id: id});
 }
 const getListVideos = async (lastId, index, count) => {
   return await axios.post(
