@@ -31,7 +31,7 @@ export const deepCopy = (data) => {
 export function isValidEmail(email) {
     // Sử dụng regex để kiểm tra tính hợp lệ của địa chỉ email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    return !emailRegex.test(email);
   };
   
 export const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
