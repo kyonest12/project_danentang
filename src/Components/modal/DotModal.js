@@ -19,7 +19,7 @@ import axios from "../../setups/custom_axios";
 //day la man hinh comment khi khong co internet
 
 
-export default function DotModal({ closeModal, postData, userID, setReportDot}) {
+export default function DotModal({ navigation, closeModal, postData, userID, setReportDot}) {
     const [isModalVisible, setModalVisible] = useState(true);
     const dispatch = useDispatch();
 
