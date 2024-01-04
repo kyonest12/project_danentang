@@ -39,18 +39,28 @@ const getListPosts = async (lastId, index, count) => {
 };
 const editPost = async (data) => {
   const { id, described, status, formData, isMedia, videoWidth, videoHeight, image_del, video_del } = data;
+  formData.append('id', id);
+  formData.append('described', described);
+  formData.append('status', status);
   if (video_del) {
+    formData.append('video_del', true);
     if (isMedia) {
-      return axios.post(`/edit_post?&id=${id}&described=${described}&status=${status}&videoWidth=${videoWidth}&videoHeight=${videoHeight}&image_del=${image_del}&video_del=${"true"}`,
+      formData.append('videoWidth', videoWidth);
+      formData.append('videoHeight', videoHeight);
+      formData.append('image_del', image_del);
+      return axios.post(`/edit_post`,
         formData, { headers: { 'Content-Type': 'multipart/form-data' } });
     }
-    return await axios.post(`/edit_post?&id=${id}&described=${described}&status=${status}&video_del=${"true"}`);
+    return await axios.post(`/edit_post`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
   }
+  formData.append('image_del', image_del);
   if (isMedia) {
-    return axios.post(`/edit_post?&id=${id}&described=${described}&status=${status}&videoWidth=${videoWidth}&videoHeight=${videoHeight}&image_del=${image_del}`,
+    formData.append('videoWidth', videoWidth);
+    formData.append('videoHeight', videoHeight);
+    return axios.post(`/edit_post`,
       formData, { headers: { 'Content-Type': 'multipart/form-data' } });
   }
-  return axios.post(`/edit_post?&id=${id}&described=${described}&status=${status}&image_del=${image_del}`);
+  return axios.post(`/edit_post`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 
 }
 const deletePost = async (data) => {
