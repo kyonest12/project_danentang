@@ -18,6 +18,7 @@ import postService from "../../Services/Api/postService";
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { COMMON_COLOR } from "../../Services/Helper/constant";
 import { useSelector } from "react-redux";
+import SplashComment from "../SplashComment";
 //đây là mỗi phần tử comment, có urlImage, ten và textComment, time
 
 function ListFeelComponent({navigation, isVisible, id, closeModal}){
@@ -206,6 +207,7 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
     // console.log('=================',user)
     //goi api lay ra thong tin cac comment cua bai viet co post_id
     const getComment = async (postId) => {
+        setCalling(true);
         if (isLoading) return;
         setIsLoading(true);
         const listComment = await axios.post(
@@ -215,6 +217,7 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
                 index: 0,
                 count: index.current
             });
+        setCalling(false);
         console.log("______________________________________")
         console.log("postId:", postId)
         console.log("comment: ", listComment.data)
@@ -317,6 +320,7 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
     }
 
     const [checkDone, setCheckDone] = useState(false);
+    const [calling, setCalling] = useState(false);
 
     return (
         <View>
@@ -331,7 +335,6 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
 
                 <View style={styles.container}>
                     <View style={styles.modalView}>
-
                         {/* thanh like */}
                         <View style={styles.like}>
                             <TouchableOpacity
@@ -348,62 +351,76 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
                             {/* <AntDesign name={like} size={22} color={'#216fdb'} onPress={() => { if (like == "like1") setLike("like2"); else setLike("like1"); handleLikeSound(); }} /> */}
                         </View>
 
+                        {
+                            calling && (
+                                <View>
+                                    <SplashComment></SplashComment>
+                                </View>
+                            )
+                        }
+
                         {/* thanh phù hợp nhất */}
-                        <View style={styles.phuhopnhat}>
-                            <Text style={{ fontSize: 20, marginTop: -5 }}>Xem bình luận cũ hơn</Text>
-                            <Ionicons style={{ flex: 1, alignItems: "flex-end", border: 1 }} name="chevron-down-outline" size={23} color="black" onPress={() => console.log("Click like")} />
-                        </View>
+                        {
+                            !calling && (
+                                <View style={styles.phuhopnhat}>
+                                    <Text style={{ fontSize: 20, marginTop: -5 }}>Xem bình luận cũ hơn</Text>
+                                    <Ionicons style={{ flex: 1, alignItems: "flex-end", border: 1 }} name="chevron-down-outline" size={23} color="black" onPress={() => console.log("Click like")} />
+                                </View>
+                            )
+                        }
 
                         {/* thanh comment */}
-                        <View style={styles.comment}>
-
-
-                            {isConnected ? <FlatList
-                                showsVerticalScrollIndicator={false}
-                                showsHorizontalScrollIndicator={false}
-                                data={comments}
-                                renderItem={(data) => {
-                                    const item = data.item;
-                                    // console.log("DATA: ", data.item)
-                                    /*
-                                        *************************************
-                                        if người dùng hiện tại không chặn người đăng comment này
-                                        *************************************
-                                    */
-                                    if(data.item.comments.length == 0){
-                                        return <ComponentComment checkDoneEdit={checkDone} cancelEdit={cancelEdit} isOwner={user.id == item.poster.id} markId={item.id} parentId={"-1"} time={formatTimeDifference(item.created)} urlImage={item.poster.avatar} key={data.index} name={item.poster.name} textComment={item.mark_content} type={item.type_of_mark} callback={handleMarkId} edit={editComment} />
-                                    }else{
-                                        return <View>
-                                            <ComponentComment checkDoneEdit={checkDone} cancelEdit={cancelEdit} isOwner={user.id == item.poster.id} markId={item.id} parentId={"-1"} time={formatTimeDifference(item.created)} urlImage={item.poster.avatar} key={data.index} name={item.poster.name} textComment={item.mark_content} type={item.type_of_mark} callback={handleMarkId} edit={editComment}/>
-                                            <View style={{marginLeft: 50}}>
-                                                {item.comments.map((childData, index) => (
-                                                    <ComponentComment cancelEdit={cancelEdit} isOwner={user.id == childData.poster.id} parentId={item.id} time={formatTimeDifference(childData.created)} urlImage={childData.poster.avatar} key={index} name={childData.poster.name} textComment={childData.content} type="-1" edit={editComment}/>
-                                                ))}
-                                            </View>
-                                        </View>
-                                    }
-                                }}
-                                // Performance settings
-                                removeClippedSubviews={true} // Unmount components when outside of window 
-                                initialNumToRender={1} // Reduce initial render amount
-                                maxToRenderPerBatch={1} // Reduce number in each render batch
-                                updateCellsBatchingPeriod={100} // Increase time between renders
-                                windowSize={7} // Reduce the window size
-                                //onScrollBeginDrag={() => endScroll.current = false}
-                                //onScrollEndDrag={() => endScroll.current = true}
-                                onScroll={(e) => {
-                                    //paddingToBottom += e.nativeEvent.layoutMeasurement.height;
-                                    if (e.nativeEvent.contentOffset.y >= h) {
-                                        //console.log("Load comment ");
-                                        onLoadComment();
-                                        setH(h + 400);
-                                    }
-                                }}
-                                scrollEventThrottle={400} // kich hoat onScroll trong khung hinh co do dai 400
-                            
-                            />
-                            : <NetworkError />}
-                        </View>
+                        {
+                            !calling && (
+                                <View style={styles.comment}>
+                                    {isConnected ? <FlatList
+                                        showsVerticalScrollIndicator={false}
+                                        showsHorizontalScrollIndicator={false}
+                                        data={comments}
+                                        renderItem={(data) => {
+                                            const item = data.item;
+                                            // console.log("DATA: ", data.item)
+                                            /*
+                                                *************************************
+                                                if người dùng hiện tại không chặn người đăng comment này
+                                                *************************************
+                                            */
+                                            if(data.item.comments.length == 0){
+                                                return <ComponentComment checkDoneEdit={checkDone} cancelEdit={cancelEdit} isOwner={user.id == item.poster.id} markId={item.id} parentId={"-1"} time={formatTimeDifference(item.created)} urlImage={item.poster.avatar} key={data.index} name={item.poster.name} textComment={item.mark_content} type={item.type_of_mark} callback={handleMarkId} edit={editComment} />
+                                            }else{
+                                                return <View>
+                                                    <ComponentComment checkDoneEdit={checkDone} cancelEdit={cancelEdit} isOwner={user.id == item.poster.id} markId={item.id} parentId={"-1"} time={formatTimeDifference(item.created)} urlImage={item.poster.avatar} key={data.index} name={item.poster.name} textComment={item.mark_content} type={item.type_of_mark} callback={handleMarkId} edit={editComment}/>
+                                                    <View style={{marginLeft: 50}}>
+                                                        {item.comments.map((childData, index) => (
+                                                            <ComponentComment cancelEdit={cancelEdit} isOwner={user.id == childData.poster.id} parentId={item.id} time={formatTimeDifference(childData.created)} urlImage={childData.poster.avatar} key={index} name={childData.poster.name} textComment={childData.content} type="-1" edit={editComment}/>
+                                                        ))}
+                                                    </View>
+                                                </View>
+                                            }
+                                        }}
+                                        // Performance settings
+                                        removeClippedSubviews={true} // Unmount components when outside of window 
+                                        initialNumToRender={1} // Reduce initial render amount
+                                        maxToRenderPerBatch={1} // Reduce number in each render batch
+                                        updateCellsBatchingPeriod={100} // Increase time between renders
+                                        windowSize={7} // Reduce the window size
+                                        //onScrollBeginDrag={() => endScroll.current = false}
+                                        //onScrollEndDrag={() => endScroll.current = true}
+                                        onScroll={(e) => {
+                                            //paddingToBottom += e.nativeEvent.layoutMeasurement.height;
+                                            if (e.nativeEvent.contentOffset.y >= h) {
+                                                //console.log("Load comment ");
+                                                onLoadComment();
+                                                setH(h + 400);
+                                            }
+                                        }}
+                                        scrollEventThrottle={400} // kich hoat onScroll trong khung hinh co do dai 400
+                                    
+                                    />
+                                    : <NetworkError />}
+                                </View>
+                            )
+                        }
 
                         {/* thanh viết bình luận */}
                         <View style={styles.binhluan}>
