@@ -77,7 +77,7 @@ function ListFeelComponent({navigation, isVisible, id, closeModal}){
 function ComponentComment(props) {
     const [editing, setEditing] = useState(false);
 
-    console.log("props: ", props);
+    // console.log("props: ", props);
     function sendMarkId(id){
         props.callback(id);
     }
@@ -195,15 +195,14 @@ const NetworkError = () => {
 
 export default function CommentModal({ navigation, closeModal, postId, postUpdated }) {
     const [isModalVisible, setModalVisible] = useState(true);
-    const [pickerValue, setPickerValue] = useState("Phù hợp nhất");
     const [textComment, setTextComment] = useState("");
-    const [like, setLike] = useState("like2");
     const [comments, setComments] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const index = useRef(0);
     const { user } = useSelector(
         (state) => state.auth
     );
+    var page = 0;
     // console.log('=================',user)
     //goi api lay ra thong tin cac comment cua bai viet co post_id
     const getComment = async (postId) => {
@@ -214,8 +213,8 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
             '/get_mark_comment',
             {
                 id: postId,
-                index: 0,
-                count: index.current
+                index: page,
+                count: 3
             });
         setCalling(false);
         console.log("______________________________________")
@@ -225,6 +224,23 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
         setComments(listComment.data);
         setIsLoading(false);
 
+    }
+
+    async function getMoreComment(){
+        setCalling(true);
+        page += 3;
+        console.log("************", page, "***********")
+        let listMoreComment = await axios.post(
+            '/get_mark_comment',
+            {
+                id: postId,
+                index: page,
+                count: 3
+            }
+        );
+        console.log(listMoreComment, "^^^^^^^^^^^^^^^^^^^^^^^^")
+        setCalling(false);
+        setComments(comments.concat(listMoreComment.data));
     }
 
 
@@ -301,7 +317,7 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
     const [h, setH] = useState(400);//chieu cao khi cuon
     const [isEdit, setIsEdit] = useState(false);
     function editComment(data){
-        console.log("&&&&&&&&&&&&&", data);
+        // console.log("&&&&&&&&&&&&&", data);
         setIsEdit(true);
         setTextComment(data.content);
         if (data.type != "-1"){
@@ -363,8 +379,10 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
                         {
                             !calling && (
                                 <View style={styles.phuhopnhat}>
-                                    <Text style={{ fontSize: 20, marginTop: -5 }}>Xem bình luận cũ hơn</Text>
-                                    <Ionicons style={{ flex: 1, alignItems: "flex-end", border: 1 }} name="chevron-down-outline" size={23} color="black" onPress={() => console.log("Click like")} />
+                                    <TouchableOpacity onPress={getMoreComment}>
+                                        <Text style={{ fontSize: 20, marginTop: -5 }}>Xem bình luận cũ hơn</Text>
+                                    </TouchableOpacity>
+                                    <Ionicons style={{ flex: 1, alignItems: "flex-end", border: 1 }} name="chevron-down-outline" size={23} color="black"/>
                                 </View>
                             )
                         }
