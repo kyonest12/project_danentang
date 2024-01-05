@@ -50,16 +50,23 @@ function ProfileScreen({ navigation, route }) {
 
     let av = "https://phongreviews.com/wp-content/uploads/2022/11/avatar-facebook-mac-dinh-13.jpg";
     var userId = route?.params?.userId;
+    var cur
+    const defaultCount = 5;
+    const defaultIndex = 0;
+    const defaultLastId = 0;
+    const [loadingScroll, setLoadingScroll] = useState(false);
+
     const [showModalAva, setShowModalAva] = useState(false);
     const [showModalCover, setShowModalCover] = useState(false);
     const [listPost, setListPost] = useState([]);
     const [friends, setFriends] = useState([]);
     const [cntFriend, setCntFriend] = useState(0);
+    const [listPostTotal, setListPostTotal] = useState([]);
     const { user } = useSelector(
         (state) => state.auth
     );
     if (userId === undefined) {
-        userId = user.id
+        cur = user.id
     }
     const { currentTabIndex } = useSelector(
         (state) => state.tab
@@ -96,12 +103,47 @@ function ProfileScreen({ navigation, route }) {
             Alert.alert('Lỗi', 'Đã có lỗi xảy ra khi nạp coin.');
           }
     }
-    const handleGetData = () => {
-        postService.getListPostByUserId(userId ? userId : user.id).then((result) => {
-            setListPost(result.data);
+
+    const handleGetListPost = () => {
+        postService.getListPostByUserId(cur, defaultLastId, defaultIndex, defaultCount).then((result) => {
+            defaultIndex.current += defaultCount;
+            setListPost(result.data.post)
         }).catch(e => {
-            console.log(e);
-        });
+            setListPost([])
+            console.log(e.response.data);
+        })
+    }
+    useEffect(() => {
+        let newList = listPostTotal;
+        newList = newList.concat(listPost);
+        setListPostTotal(newList);
+    }, [listPost]);
+
+    function handleScroll(){
+        setLoadingScroll(true);
+        postService.getListPostByUserId(cur, defaultLastId, listPostTotal.length, defaultCount).then((result) => {
+            console.log(result.data.post);
+            //add to listFriendTotal
+            result.data.forEach((item) => {
+                listPostTotal.push(item);
+            });
+            setLoadingScroll(false);
+        }).catch(e => {
+            setListPost([])
+            console.log(e.response.data);
+            setLoadingScroll(false);
+        })
+    }
+
+    const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+        const paddingToBottom = 50;
+        return layoutMeasurement.height + contentOffset.y >=
+            contentSize.height - paddingToBottom;
+    };
+
+    const handleGetData = () => {
+        handleGetListPost()
+        console.log("POSST: ", listPostTotal)
         console.log(userId)
         if (userId) {
             userService.getUserInfor(userId).then((result) => {
@@ -269,6 +311,11 @@ function ProfileScreen({ navigation, route }) {
                         onRefresh={onRefresh}
                         colors={["#0f80f7"]}
                     />}
+                onScroll={({ nativeEvent }) => {
+                    if (isCloseToBottom(nativeEvent)) {
+                        handleScroll();
+                    }
+                }}
             >
                 <View style={styles.firstView}>
                     <TouchableOpacity
@@ -324,14 +371,16 @@ function ProfileScreen({ navigation, route }) {
                                 </View>
                             </TouchableOpacity>
                             )}
-                            <TouchableOpacity
-                                style={styles.setting}
-                                onPress={() => navigation.navigate('setting', {userId: userId})}
-                            >
-                                <View>
-                                    <MaterialIcons name="more-horiz" size={20} color='#000000' />
-                                </View>
-                            </TouchableOpacity>
+                            { userId != undefined &&
+                                <TouchableOpacity
+                                    style={styles.setting}
+                                    onPress={() => navigation.navigate('setting', {userId: userId})}
+                                >
+                                    <View>
+                                        <MaterialIcons name="more-horiz" size={20} color='#000000' />
+                                    </View>
+                                </TouchableOpacity>
+                            }
                         </View>
                     </View>
                 </View>
@@ -484,7 +533,7 @@ function ProfileScreen({ navigation, route }) {
                     <View style={styles.rowInfor}>
                         <MaterialIcons name="more-horiz" size={27} color='#909698' />
                         <Text style={styles.hardTextAddress}>
-                            Xem thông tin giới thiệu của bạn
+                            Xem thông tin giới thiệu 
                         </Text>
                     </View>
                     {!userId && <TouchableOpacity
@@ -554,8 +603,8 @@ function ProfileScreen({ navigation, route }) {
                         </View>
                     </TouchableOpacity>
                 </View>
-                {listPost?.map((item, index) => {
-                    return <PostInHome navigation={navigation} key={item.id} postData={item} avatar={(userId ? !userInfors?.avatar : !userInfor.avatar) ? require('../../assets/images/default_avatar.jpg') : { uri: userId ? userInfors?.avatar : userInfor?.avatar }} userID={user.id} />
+                {listPostTotal?.map((item, index) => {
+                    return <PostInHome navigation={navigation} key={index} postData={item} avatar={(userId ? !userInfors?.avatar : !userInfor.avatar) ? require('../../assets/images/default_avatar.jpg') : { uri: userId ? userInfors?.avatar : userInfor?.avatar }} userID={user.id} />
                 })}
             </ScrollView>
         </>

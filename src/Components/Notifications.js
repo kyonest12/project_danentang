@@ -17,7 +17,7 @@ export default function Notifications({ navigation, data, updateListNoti }) {
     
     let contentToRender;
 
-  switch (data.type) {
+switch (data.type) {
     case "1":
         contentToRender = "đã gửi lời mời kết bạn";
         break;
@@ -43,20 +43,28 @@ export default function Notifications({ navigation, data, updateListNoti }) {
         contentToRender = "đã thêm một video mới";
         break;
     case "9":
-        contentToRender = "đã bình luận bài viết";
+        contentToRender = "đã bình luận bài viết của bạn";
         break;
-  }
+}
 
-    return <View style={{ width: '80%', paddingVertical: 5, flexDirection: 'row' }}>
-        <Image source={
-                !notiData?.user.avatar ? require('../../assets/images/default_avatar.jpg')
-                    : { uri: notiData?.user.avatar }
-        } style={{ width: 80, height: 80, borderRadius: 40, borderColor: COMMON_COLOR.GRAY_COLOR_BACKGROUND, borderWidth: 1 }} />
-        <View style={styles.noti}> 
-            <Text><Text style={{ fontWeight: 'bold' }}> {notiData?.user.username}</Text> {contentToRender} </Text>
-            <Text style={{ fontSize: 10 }}>{notiTimeDifference(notiData?.created)}</Text>
-        </View>
-    </View> 
+
+    return <TouchableOpacity style={{ width: '80%', paddingVertical: 5, flexDirection: 'row' }} onPress={() => {
+        if (data.type === "1" || data.type === "2") {
+            navigation.navigate("profile", { userId:notiData?.user.id });
+        }
+        else {
+            
+        }
+    }}>
+            <Image source={
+                    !notiData?.user.avatar ? require('../../assets/images/default_avatar.jpg')
+                        : { uri: notiData?.user.avatar }
+            } style={{ width: 80, height: 80, borderRadius: 40, borderColor: COMMON_COLOR.GRAY_COLOR_BACKGROUND, borderWidth: 1 }} />
+            <View style={styles.noti}> 
+                <Text><Text style={{ fontWeight: 'bold' }}> {notiData?.user.username}</Text> {contentToRender} </Text>
+                <Text style={{ fontSize: 10 }}>{notiTimeDifference(notiData?.created)}</Text>
+            </View>
+    </TouchableOpacity> 
 }
 
 const styles = StyleSheet.create({

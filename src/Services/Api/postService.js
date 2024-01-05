@@ -89,8 +89,16 @@ const reportPost = (data) => {
       }
     );
 }
-const getListPostByUserId = (userId) => {
-  return axios.post(`get_post_by_userId?userId=${userId}`);
+const getListPostByUserId = async (userId, lastId, index, count) => {
+  return await axios.post(
+    '/get_list_posts?',
+    {
+      user_id: userId,
+      last_id: lastId,
+      index: index,
+      count: count,
+    }
+  );
 }
 const setMarkComment = async (data) => {
   return axios.post(
@@ -179,7 +187,6 @@ const getListFeel = async(id, index, count) => {
     }
   )
 }
-
 const postService = {
   getListPosts,
   getListVideos,
@@ -199,6 +206,6 @@ const postService = {
   getNoti,
   feel,
   deleteFeel,
-  getListFeel
+  getListFeel,
 };
 export default postService;

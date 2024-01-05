@@ -20,7 +20,7 @@ import userService from '../Services/Api/userService';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import postService from '../Services/Api/postService';
 import Notifications from '../Components/Notifications';
-function NotificationScreen(navigation) {
+function NotificationScreen({navigation}) {
     const defaultCount = 8;
     const defaultIndex = useRef(0);
     const dispatch = useDispatch();
