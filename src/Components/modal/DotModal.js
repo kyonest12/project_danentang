@@ -63,12 +63,12 @@ export default function DotModal({ navigation, closeModal, postData, userID, set
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => {
-                    Alert.alert("Chuyển vào thùng rác?", "Các mục trong thùng rác sẽ tự động bị xóa sau 30 ngày. Bạn có thể xóa các mục này khỏi Thùng rác sớm hơn bằng cách đi đến Nhật ký hoạt động trong phần Cài đặt. Nếu bạn đã thêm video trực tiếp vào tin thì video đó sẽ bị gỡ ngay lập tức khỏi tin.", [
+                    Alert.alert("Xóa bài viết?", "Các thông tin, dữ liệu liên quan đến bài viết sẽ được xóa hoàn toàn.", [
                         {
                             text: "Hủy",
                         },
                         {
-                            text: "Chuyển",
+                            text: "Xóa",
                             onPress: ()=> {
                                 /*await axios.post(`/post/delete_post?&id=${postData.id}`).then(res => {
                                     if(res.message == 'OK'){

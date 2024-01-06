@@ -44,6 +44,7 @@ import PasswordSetting from './settings/PasswordSetting';
 import EditAddress from './EditAddress';
 import EditCountry from './EditCountry';
 import ListBlock from './ListBlockScreen';
+import DetailPostScreen from './DetailPostScreen';
 const socket = io(`${CHAT_SERVER_URL}`);
 export default function AppNavigator() {
     const netInfo = useNetInfo();
@@ -79,6 +80,7 @@ export default function AppNavigator() {
                 </Stack.Screen>
                 <Stack.Screen name="createPost" component={CreatePostScreen} options={{ title: 'Tạo bài viết' }} />
                 <Stack.Screen name="image" component={ImageLibrary} options={{ title: 'Thư viện' }} />
+                <Stack.Screen name="detailPost" component={DetailPostScreen} options={{ title: 'Chi tiết bài viết' }} />
                 <Stack.Screen name="emoji" component={EmojiList} options={{ title: 'Cảm xúc' }} />
                 <Stack.Screen name="editProfile" component={EditProfileScreen} options={{ title: 'Chỉnh sửa trang cá nhân' }} />
                 <Stack.Screen name="setting" component={SettingScreen} options={{ title: 'Cài đặt trang cá nhân' }} />

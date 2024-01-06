@@ -1,25 +1,22 @@
 import React, { useEffect, useState, memo, useRef } from 'react';
 import { useNetInfo } from '@react-native-community/netinfo';
 import {
-    StyleSheet,
     Text,
-    TouchableOpacity,
     View, Image, FlatList,
     ScrollView,
     RefreshControl,
-    Alert,
-    ActivityIndicator
+    ActivityIndicator,
+    TouchableOpacity
 } from 'react-native';
 import { useDispatch, useSelector } from "react-redux";
-import { connect } from 'react-redux';
 import {
     _getCache,
     _setCache
 } from '../Services/Helper/common';
-import userService from '../Services/Api/userService';
-import { Entypo, FontAwesome } from '@expo/vector-icons';
 import postService from '../Services/Api/postService';
 import Notifications from '../Components/Notifications';
+import { useNavigation } from '@react-navigation/native';
+
 function NotificationScreen({navigation}) {
     const defaultCount = 8;
     const defaultIndex = useRef(0);
@@ -33,6 +30,7 @@ function NotificationScreen({navigation}) {
     const [refreshing, setRefreshing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [loadingScroll, setLoadingScroll] = useState(false);
+    const navi = useNavigation();
     const onRefresh = async () => {
         setRefreshing(true);
         if (!isLoading) {
@@ -47,7 +45,7 @@ function NotificationScreen({navigation}) {
         //fix index to user's id
 
         postService.getNoti("1", defaultCount).then((result) => {
-            console.log(result);
+            // console.log(result);
             defaultIndex.current += defaultCount;
             setListNoti(result.data)
         }).catch(e => {
@@ -70,13 +68,14 @@ function NotificationScreen({navigation}) {
         let newList = listNotiTotal;
         newList = newList.concat(listNoti);
         // setListFriendTotal(newList);
-        console
+        // console.log('*********************',typeof(listNoti[0].type));
+        // console.log('*********************',listNoti[1].type);
         setListNotiTotal(listNoti);
     }, [listNoti]);
     function handleScroll(){
         setLoadingScroll(true);
         postService.getNoti(listNotiTotal.length, defaultCount).then((result) => {
-            console.log(result);
+            // console.log(result);
             //add to listFriendTotal
             result.data.forEach((item) => {
                 listNotiTotal.push(item);
@@ -88,6 +87,7 @@ function NotificationScreen({navigation}) {
             setLoadingScroll(false);
         })
     }
+
     return (
         <View style={{backgroundColor: 'white', flex: 1}}>
             <ScrollView showsVerticalScrollIndicator={false}

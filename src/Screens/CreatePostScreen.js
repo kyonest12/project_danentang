@@ -78,7 +78,8 @@ export default function CreatePostScreen({ route, navigation }) {
         } else if (newData.length > 0 && post.checkVideo) {
             formData.append("video", { name: newData[0].filename, uri: newData[0].uri, type: newData[0].type })
         }
-        console.log("DATA", formData)
+        console.log("DATA", formData);
+        console.log('checkEdit ******************: ', post.checkEdit);
         if (!post.checkEdit) {
             // check xem người dùng đã nhập các thông tin tối thiểu hay chưa
             dispatch(createPost({ described, status, formData, isMedia: (post.checkImage || post.checkVideo)}));

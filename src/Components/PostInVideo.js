@@ -18,7 +18,7 @@ import {
     delay,
     convertMsToTime
 } from '../Services/Helper/common';
-import { Ionicons, Entypo, MaterialIcons, AntDesign, Feather, SimpleLineIcons } from '@expo/vector-icons';
+import { Ionicons, Entypo, AntDesign, Feather, SimpleLineIcons } from '@expo/vector-icons';
 import { Avatar, Button, Card, Title, Paragraph } from 'react-native-paper';
 import { getTimeUpdatePostFromUnixTime } from '../Services/Helper/common';
 import postService from '../Services/Api/postService';
@@ -38,6 +38,9 @@ import { onChangeMute, onChangePlayVideoDetail, onChangePlayVideoTab } from '../
 import { resetEmojiSlice, setUserID } from '../Redux/emojiSlice';
 import { formatTimeDifference } from '../Services/Helper/common';
 function PostInVideo({ navigation, postData, isPlaying, userID }) {
+
+    // console.log('****************',postData);
+
     const dispatch = useDispatch();
     const video = useRef(null);
     const [status, setStatus] = useState({ isPlaying: false });
@@ -48,6 +51,7 @@ function PostInVideo({ navigation, postData, isPlaying, userID }) {
     const [viewImage, setViewImage] = useState(false);
     const [indexViewImage, setIndexViewImage] = useState(0);
     const [post, setPost] = useState(postData);
+    console.log('##########', post);
     const [seemore, setSeemore] = useState(post?.described && post?.described?.length <= 200);
     const [isError, setIsError] = useState(false);
     const [showBtnControl, setShowBtnControl] = useState(false);
@@ -124,6 +128,7 @@ function PostInVideo({ navigation, postData, isPlaying, userID }) {
             return null
     }
     useEffect(() => {
+        // console.log('^^^^^^^^^^^^^^^^^^^^^');
         if (post?.video && post?.video?.height && post?.video?.width) {
             const videoWidth = widthLayout, videoHeight = widthLayout * post?.video?.height / post?.video?.width;
             setVideoDimension({ width: videoWidth, height: videoHeight });
