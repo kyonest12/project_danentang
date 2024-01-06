@@ -75,7 +75,7 @@ function HomeScreen({ route, onSwipeUp, onSwipeDown, navigation }) {
         if (isPendingCreatePost === false && newCreatePostData) {
             let newPostList = [];
             newPostList.push(newCreatePostData);
-            console.log(newCreatePostData);
+            // console.log(newCreatePostData);
             newPostList = newPostList.concat(postListTotal);
             setPostListTotal(newPostList);
             ToastAndroid.show("Đăng bài viết thành công", ToastAndroid.SHORT);
@@ -122,24 +122,25 @@ function HomeScreen({ route, onSwipeUp, onSwipeDown, navigation }) {
         }
     }, [isPendingDeletePost, isErrorDeletePost, messageDeletePost])
     useEffect(() => {
-        console.log('is', !isPostListLoading);
+        // console.log('is', !isPostListLoading);
         dispatch(getUserInfo({ user_id: user.id }));
         if (!isPostListLoading)
             dispatch(fetchListPost({ lastId: defaultLastId, index: defaultIndex, count: defaultCount }));
     }, []);
     useEffect(() => {
-        console.log('run', postList?.length);
+        // console.log('run', postList?.length);
         let newPostList = postListTotal;
         newPostList = newPostList.concat(postList);
         setPostListTotal(newPostList);
     }, [postList]);
-    console.log('newPostList', postListTotal.length);
+    // console.log('newPostList', postListTotal.length);
     return <View style={styles.container}>
         <FlatList
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
             data={postListTotal}
             renderItem={(item) => {
+                // console.log('item: ',item.item)
                 if (item.index === 0) {
                     return <>
                         <View style={{ flex: 1, height: 70, backgroundColor: 'white', flexDirection: 'row', padding: 15 }}>

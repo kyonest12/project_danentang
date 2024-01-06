@@ -16,7 +16,8 @@ import {
 import postService from '../Services/Api/postService';
 import Notifications from '../Components/Notifications';
 import { useNavigation } from '@react-navigation/native';
-function NotificationScreen(navigation) {
+
+function NotificationScreen({navigation}) {
     const defaultCount = 8;
     const defaultIndex = useRef(0);
     const dispatch = useDispatch();
@@ -87,23 +88,6 @@ function NotificationScreen(navigation) {
         })
     }
 
-    function handleDetailNoti(data){
-        console.log('^^^^^^^^^^^',data)
-        switch(data?.type){
-            case "1":{
-                break;
-            }
-            case "2":{
-                break;
-            }
-            case "3":{
-                //navigate to detail post
-                navi.navigate("detailPost", {post: data.post});
-                break;
-            }
-        }
-    }
-
     return (
         <View style={{backgroundColor: 'white', flex: 1}}>
             <ScrollView showsVerticalScrollIndicator={false}
@@ -134,9 +118,7 @@ function NotificationScreen(navigation) {
                         <View style={{ marginHorizontal: -5 }}>
                             {listNotiTotal?.map((item, index) => {
                                 return <View key={index} >
-                                    <TouchableOpacity onPress={() => {handleDetailNoti(item)}}>
-                                        <Notifications navigation={navigation} data={item} updateListNoti={() => handleGetListNoti()} />
-                                    </TouchableOpacity>
+                                    <Notifications navigation={navigation} data={item} updateListNoti={() => handleGetListNoti()} />
                                 </View>
                             })}
                         </View>

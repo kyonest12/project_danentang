@@ -53,7 +53,7 @@ export default function DashBoardScreen({ navigation, socket }) {
         //token ={token}
     ), []);
     const FiveRoute = useCallback(() => (
-        <NotificationScreen />
+        <NotificationScreen navigation={navigation} />
     ), []);
     const SixRoute = useCallback(() => (
         <MenuScreen navigation={navigation} />
