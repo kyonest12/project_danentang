@@ -15,7 +15,7 @@ import CommentModal from "../Components/modal/CommentModal";
 export default function DetailPostScreen({navigation, route}){
 
     var postId = route?.params?.post.post.id;
-    // console.log('post data: ',postId);
+    // console.log('post data: ',route?.params?.post);
     
     const [postData, setPostData] = useState({});
     const [comments, setComments] = useState([]);
@@ -72,9 +72,9 @@ export default function DetailPostScreen({navigation, route}){
     }
 
     function handlePressEmo(){
-        switch(post.is_felt){
+        switch(postData.is_felt){
             case "-1": {
-                postService.feel(post.id, "1").then((res) => {
+                postService.feel(postId, "1").then((res) => {
                     console.log(res);
                     postUpdated();
                 }).catch((e) => {
@@ -83,7 +83,7 @@ export default function DetailPostScreen({navigation, route}){
                 break;
             }
             default: {
-                postService.deleteFeel(post.id).then((res) => {
+                postService.deleteFeel(postId).then((res) => {
                     console.log(res);
                     postUpdated();
                 }).catch(e => {
@@ -115,7 +115,7 @@ export default function DetailPostScreen({navigation, route}){
     };
     const [showComment, setShowComment] = useState(false);
     const postUpdated = () => {
-        postService.getPost(post.id).then(async (result) => {
+        postService.getPost(postId).then(async (result) => {
             setPostData(result.data);
             console.log('update: ', result);
             setCntFeel(String(Number(result.data.disappointed) + Number(result.data.kudos)));
