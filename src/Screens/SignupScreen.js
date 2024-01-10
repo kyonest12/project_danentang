@@ -121,11 +121,12 @@ export default function SignupScreen({ navigation }) {
     }
     const handleSetEmail = (e) => {
         let dataTmp = deepCopy(validate.current);
-        if (e === "" || !isValidEmail(e)) {
-            console.log(e)
+        let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+        if (e === undefined || (reg.test(e) === false)) {
+            console.log('email: ',e)
             dataTmp['email'] = {
-                exactly: false,
-                errorName: 'email không hợp lệ'
+                exactly: true,
+                errorName: ''
             }
         }
         else {
