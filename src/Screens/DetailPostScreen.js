@@ -19,6 +19,7 @@ export default function DetailPostScreen({navigation, route}){
     
     const [postData, setPostData] = useState({});
     const [comments, setComments] = useState([]);
+    const [cntMark, setCntMark] = useState("0");
 
     // function getComment(index){
     //     postService.getMarkComment(postId, "0", String((index+1)*3-1)).then((res) => {
@@ -34,6 +35,7 @@ export default function DetailPostScreen({navigation, route}){
             console.log('get post: ', res);
             setPostData(res.data);
             setCntFeel(String(Number(res.data.disappointed) + Number(res.data.kudos)));
+            setCntMark(String(Number(res.data.trust) + Number(res.data.fake)));
             console.log('media: ', res.data.image)
         }).catch((e) => {
             console.log('Loi: ', e.response);
@@ -172,7 +174,7 @@ export default function DetailPostScreen({navigation, route}){
             </View>
 
             <View style={{marginRight: 25}}>
-                <Text style={{color: '#626262'}}>{postData?.can_mark} Marks</Text>
+                <Text style={{color: '#626262'}}>{cntMark} Marks</Text>
             </View>
 
         </View>
