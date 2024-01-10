@@ -157,7 +157,7 @@ export default function LoginScreen({ navigation }) {
             <View style={{ marginTop: 30 }}>
                 {loginInfo?.map((item, index) => {
                     return <View key={index} style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', marginBottom: 5 }}>
-                        <TouchableOpacity onPress={() => handleLoginWithCache(item)}
+                        <TouchableOpacity onPress={() => console.log (item)}
                          style={{ flex: 1, flexDirection: 'row' }}>
                             <Image
                                 style={{

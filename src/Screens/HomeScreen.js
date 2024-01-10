@@ -28,6 +28,7 @@ function HomeScreen({ route, onSwipeUp, onSwipeDown, navigation }) {
     const { user } = useSelector(
         (state) => state.auth
     );
+    console.log ( "abc ", user)
     const { currentTabIndex } = useSelector(
         (state) => state.tab
     );

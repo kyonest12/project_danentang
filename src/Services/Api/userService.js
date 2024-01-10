@@ -92,7 +92,7 @@ const unFriend = (userId) => {
   return axios.post(`/unfriend`, {user_id: userId});
 }
 const delRequestFriend = (userId) => {
-  return axios.post(`/unfriend?user_id=${userId}`);
+  return axios.post(`/del_request_friend`,{user_id: userId});
 }
 const getUserInforWithToken = (userId, token) =>  {
   return axios.post(`/get_user_info?user_id=${userId}&token=${token}`);

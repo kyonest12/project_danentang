@@ -48,6 +48,7 @@ function NotificationScreen({navigation}) {
             // console.log(result);
             defaultIndex.current += defaultCount;
             setListNoti(result.data)
+            console.log (result.data[0])
         }).catch(e => {
             setListNoti([])
             console.log(e.response.data);

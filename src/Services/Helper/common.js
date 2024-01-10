@@ -82,8 +82,9 @@ export function notiTimeDifference(date) {
     const weeksDifference = daysDifference / 7;
     const monthsDifference = currentDate.getMonth() - timestampDate.getMonth() + (currentDate.getFullYear() - timestampDate.getFullYear()) * 12;
     const yearsDifference = currentDate.getFullYear() - timestampDate.getFullYear();
+    const timeDiffYear = 1000 * 60 * 60 * 24 * 365 ;
   
-    if (yearsDifference >= 1) {
+    if (yearsDifference >= 1 && timeDifference >= timeDiffYear) {
       return `${Math.floor(yearsDifference)} năm trước`;
     } else if (monthsDifference >= 1) {
       return `${Math.floor(monthsDifference)} tháng trước`;

@@ -51,7 +51,7 @@ function PostInVideo({ navigation, postData, isPlaying, userID }) {
     const [viewImage, setViewImage] = useState(false);
     const [indexViewImage, setIndexViewImage] = useState(0);
     const [post, setPost] = useState(postData);
-    console.log('##########', post);
+    // console.log('##########', post);
     const [seemore, setSeemore] = useState(post?.described && post?.described?.length <= 200);
     const [isError, setIsError] = useState(false);
     const [showBtnControl, setShowBtnControl] = useState(false);

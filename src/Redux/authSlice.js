@@ -50,7 +50,8 @@ const initialState = {
   loginPassword: null,
   firstLogin: false, // true login lần đầu -> mở màn hình lưu thông tin đăng nhập
   loginWithCache: false,
-  socket: null
+  socket: null,
+  email: null
 };
 
 const authSlice = createSlice({
@@ -77,6 +78,7 @@ const authSlice = createSlice({
         state.loginType = 2;
       }
       else {
+        console.log (payload.data)
         state.user = payload?.data;
         state.isAuthenticated = true;
         state.token = payload?.data?.token;
