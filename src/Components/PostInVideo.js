@@ -105,6 +105,7 @@ function PostInVideo({ navigation, postData, isPlaying, userID }) {
     }
     const handleLikePost = () => {
         // call api like post
+        //
         postService.likePost(post?.id).then((data) => {
             postUpdated();
         }).catch((e) => {
@@ -128,11 +129,7 @@ function PostInVideo({ navigation, postData, isPlaying, userID }) {
             return null
     }
     useEffect(() => {
-        // console.log('^^^^^^^^^^^^^^^^^^^^^');
-        if (post?.video && post?.video?.height && post?.video?.width) {
-            const videoWidth = widthLayout, videoHeight = widthLayout * post?.video?.height / post?.video?.width;
-            setVideoDimension({ width: videoWidth, height: videoHeight });
-        }
+        setVideoDimension({ width: widthLayout, height: 250 });
     }, [post]);
     const handleShowButtonControl = async () => {
         setShowBtnControl(true);
@@ -187,7 +184,7 @@ function PostInVideo({ navigation, postData, isPlaying, userID }) {
                                 }
                             }}>
                                 <Text style={{ width: 200 }}>
-                                    <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{post?.author?.username + ' '}</Text>
+                                    <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{post?.author?.name + ' '}</Text>
                                     {post?.state && <Image source={{ uri: uriEmoji() }} style={styles.emoji} />}
                                     {post?.state && <Text style={{ fontWeight: 'normal', fontSize: 15 }}>
                                         {` đang cảm thấy ${post?.state}`}

@@ -217,5 +217,6 @@ const postService = {
   feel,
   deleteFeel,
   getListFeel,
+  likePost
 };
 export default postService;

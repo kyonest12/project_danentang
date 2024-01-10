@@ -11,7 +11,7 @@ import { useNetInfo } from '@react-native-community/netinfo';
 import { COMMON_COLOR } from "../Services/Helper/constant";
 import { resetEmojiSlice } from "../Redux/emojiSlice";
 import { Ionicons, Entypo, MaterialCommunityIcons, AntDesign, Feather, FontAwesome } from '@expo/vector-icons';
-//@trungtt123
+
 function VideoScreen({ route, onSwipeUp, onSwipeDown, navigation }) {
     const defaultCount = 4;
     const defaultIndex = 0;
@@ -43,6 +43,7 @@ function VideoScreen({ route, onSwipeUp, onSwipeDown, navigation }) {
     };
     const handleGetListVideos = () => {
         postService.getListVideos(0, 0, 0).then((result) => {
+  
             setPostListTotal(result.data.post);
             // setPostList(result.data.post.slice(0, 4));
         }).catch(e => {
