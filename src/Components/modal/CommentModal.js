@@ -252,7 +252,7 @@ export default function CommentModal({ navigation, closeModal, postId, postUpdat
         //     count: 10,
         //     type: type
         //   }
-        let dataCmt = {count: 10, index: 0, id: postId};
+        let dataCmt = {count: 3, index: 0, id: postId};
         let textCommentTmp = textComment + " ";
         dataCmt.content = getTextWithIcon(textCommentTmp);
         let type = checked == "trust" ? 1 : 0;
