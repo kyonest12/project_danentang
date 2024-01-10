@@ -20,9 +20,10 @@ import * as Animatable from 'react-native-animatable';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { COMMON_COLOR } from '../Services/Helper/constant';
 function SaveLoginInfoScreen({ navigation }) {
-    const { firstLogin, loginWithCache, loginPhonenumber, loginPassword, user, isAuthenticated } = useSelector(
+    const { firstLogin, loginWithCache, loginPhonenumber, loginPassword, user, isAuthenticated, email } = useSelector(
         (state) => state.auth
     );
+    
     const dispatch = useDispatch();
     useEffect(() => {
         if (loginWithCache) {
@@ -41,7 +42,8 @@ function SaveLoginInfoScreen({ navigation }) {
             phonenumber: loginPhonenumber,
             password: loginPassword,
             avatar: user.avatar,
-            username: user.username
+            username: user.username,
+            email: email
         })
         dispatch(removeLoginInfoInRedux());
         dispatch(changeLoginWithCache(true));

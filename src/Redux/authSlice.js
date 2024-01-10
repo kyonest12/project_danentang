@@ -61,6 +61,7 @@ const authSlice = createSlice({
   extraReducers: {
     [login.pending]: (state, action) => {
       console.log('pending', action);
+      state.email = action.meta.arg.email;
       state.isLoading = true;
       state.user = null;
       state.isAuthenticated = null;
