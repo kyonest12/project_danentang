@@ -61,8 +61,8 @@ function ProfileScreen({ navigation, route }) {
   var userId = route?.params?.userId;
   var cur = userId;
   const defaultCount = 5;
-  const defaultIndex = 0;
-  const defaultLastId = 0;
+  const [defaultIndex, setDefaultIndex] = useState(0);
+  const [defaultLastId, setDefaultLastId] = useState(0);
   const [loadingScroll, setLoadingScroll] = useState(false);
 
   const [showModalAva, setShowModalAva] = useState(false);
@@ -86,6 +86,9 @@ function ProfileScreen({ navigation, route }) {
   const [userInfors, setUserInfors] = useState(userInfor);
   const onRefresh = async () => {
     setRefreshing(true);
+    setListPostTotal([])
+    setDefaultIndex(0),
+    setDefaultLastId(0),
     handleGetData();
     await delay(2000);
     setRefreshing(false);

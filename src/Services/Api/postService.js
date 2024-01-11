@@ -42,24 +42,6 @@ const editPost = async (data) => {
   formData.append('id', id);
   formData.append('described', described);
   formData.append('status', status);
-  if (video_del) {
-    formData.append('video_del', true);
-    if (isMedia) {
-      formData.append('videoWidth', videoWidth);
-      formData.append('videoHeight', videoHeight);
-      formData.append('image_del', image_del);
-      return axios.post(`/edit_post`,
-        formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-    }
-    return await axios.post(`/edit_post`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-  }
-  formData.append('image_del', image_del);
-  if (isMedia) {
-    formData.append('videoWidth', videoWidth);
-    formData.append('videoHeight', videoHeight);
-    return axios.post(`/edit_post`,
-      formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-  }
   return axios.post(`/edit_post`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 
 }

@@ -55,7 +55,7 @@ export default function DotModal({ navigation, closeModal, postData, userID, set
                         dispatch(setOriginalData([postData.video]));
                     }
                     setModalVisible(false); closeModal(false);
-                    navigation.navigate("createPost");
+                    navigation.navigate("createPost", { edit: true });
                 }}>
                     <View style={{ flexDirection: "row", width: 400, alignItems: "center", marginBottom: 5, marginLeft: 20 }}>
                         <Entypo name="edit" size={30} color="black" style={{ marginLeft: 20 }}></Entypo>

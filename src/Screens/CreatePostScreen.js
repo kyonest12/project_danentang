@@ -48,14 +48,14 @@ export default function CreatePostScreen({ route, navigation }) {
     const widthLayout = Dimensions.get('window').width;
     const isKeyboardVisible = useKeyBoard();
     const [showMenu, setShowMenu] = useState(false);
-
+    
     useEffect(() => {
         prevPage.current = route.params?.prevPage;
     }, [route])
     useEffect(() => {
         navigation.setOptions({
             headerTitle: () => (
-                <Text style={{ fontWeight: 'bold', fontSize: 17 }}>Tạo bài viết</Text>
+                <Text style={{ fontWeight: 'bold', fontSize: 17 }}> {route?.params?.edit ? 'Chỉnh sửa bài viết' : 'Tạo bài viết'} </Text>
             ),
             headerRight: () => (
                 <TouchableOpacity onPress={() => { postData(); navigation.goBack() }}
@@ -80,11 +80,11 @@ export default function CreatePostScreen({ route, navigation }) {
         }
         console.log("DATA", formData);
         console.log('checkEdit ******************: ', post.checkEdit);
-        if (!post.checkEdit) {
+        if (!route?.params?.edit) {
             // check xem người dùng đã nhập các thông tin tối thiểu hay chưa
             dispatch(createPost({ described, status, formData, isMedia: (post.checkImage || post.checkVideo)}));
         } else {
-            //console.log({ id: post.postID, described, status, formData, isMedia: (newData.length==0), videoWidth: post.videoWidth, videoHeight: post.videoHeight, image_del: JSON.stringify(image_del), video_del: post.video_del});
+            console.log("Chỉnh sửa", { id: post.postID, described, status, formData, isMedia: (newData.length==0), videoWidth: post.videoWidth, videoHeight: post.videoHeight, image_del: JSON.stringify(image_del), video_del: post.video_del});
             dispatch(editPost({ id: post.postID, described, status, formData, isMedia: !(newData.length == 0), videoWidth: post.videoWidth, videoHeight: post.videoHeight, image_del: JSON.stringify(image_del), video_del: post.video_del }))
         }
     }

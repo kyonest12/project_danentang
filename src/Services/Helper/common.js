@@ -69,8 +69,11 @@ export function formatTimeDifference(date) {
         // Nếu thời gian đã trôi qua hơn hoặc bằng 1 phút, hiển thị phút
         return `${Math.floor(minutesDifference)} phút trước`;
     } else {
+        if (Math.floor(secondsDifference) < 0)
+            return `0 giây trước`
+        else
         // Nếu thời gian chưa trôi qua 1 phút, hiển thị giây
-        return `${Math.floor(secondsDifference)} giây trước`;
+            return `${Math.floor(secondsDifference)} giây trước`;
     }
 }
 export function notiTimeDifference(date) {
